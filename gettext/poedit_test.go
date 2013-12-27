@@ -19,14 +19,14 @@ func _TestPoEditPoFile(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !reflect.DeepEqual(&po.Header, &poEditFile.Header) {
-		t.Fatalf("expect = %v, got = %v", &poEditFile.Header, &po.Header)
+	if !reflect.DeepEqual(&po.MimeHeader, &poEditFile.MimeHeader) {
+		t.Fatalf("expect = %v, got = %v", &poEditFile.MimeHeader, &po.MimeHeader)
 	}
-	for i := 0; i < len(po.Entrys) && i < len(poEditFile.Entrys); i++ {
-		if !reflect.DeepEqual(&po.Entrys[i], &poEditFile.Entrys[i]) {
-			t.Fatalf("%d: expect = %v, got = %v", i, poEditFile.Entrys[i], po.Entrys[i])
+	for i := 0; i < len(po.Messages) && i < len(poEditFile.Messages); i++ {
+		if !reflect.DeepEqual(&po.Messages[i], &poEditFile.Messages[i]) {
+			t.Fatalf("%d: expect = %v, got = %v", i, poEditFile.Messages[i], po.Messages[i])
 		}
 	}
 }
 
-var poEditFile = &PoFile{}
+var poEditFile = &File{}

@@ -10,26 +10,26 @@ import (
 )
 
 func TestPoComment(t *testing.T) {
-	var x PoComment
+	var x Comment
 	for i := 0; i < len(testPoComments); i++ {
 		err := x.readPoComment(newLineReader(testPoComments[i].Data))
 		if err != nil {
 			t.Fatalf("%d: %v", i, err)
 		}
-		if !reflect.DeepEqual(&x, &testPoComments[i].Comment) {
+		if !reflect.DeepEqual(&x, &testPoComments[i].PoComment) {
 			t.Logf("expect(%d):\n", i)
-			t.Logf("\n%v\n", &testPoComments[i].Comment)
+			t.Logf("\n%v\n", &testPoComments[i].PoComment)
 			t.Logf("got(%d):\n", i)
 			t.Logf("\n%v\n", &x)
 			t.FailNow()
 		}
 		if testPoComments[i].CheckStringer {
-			s := testPoComments[i].Comment.String()
+			s := testPoComments[i].PoComment.String()
 			if s != testPoComments[i].Data {
 				t.Logf("expect(%d):\n", i)
 				t.Logf("\n%s\n", testPoComments[i].Data)
 				t.Logf("got(%d):\n", i)
-				t.Logf("\n%s\n", testPoComments[i].Comment.String())
+				t.Logf("\n%s\n", testPoComments[i].PoComment.String())
 				t.FailNow()
 			}
 		}
@@ -39,7 +39,7 @@ func TestPoComment(t *testing.T) {
 type testPoComment struct {
 	CheckStringer bool
 	Data          string
-	Comment       PoComment
+	PoComment     Comment
 }
 
 var testPoComments = []testPoComment{
@@ -52,7 +52,7 @@ var testPoComments = []testPoComment{
 		CheckStringer: true,
 		Data: `# translator comments
 `,
-		Comment: PoComment{
+		PoComment: Comment{
 			TranslatorComment: `translator comments`,
 		},
 	},
@@ -60,7 +60,7 @@ var testPoComments = []testPoComment{
 		CheckStringer: true,
 		Data: `# translator comments
 `,
-		Comment: PoComment{
+		PoComment: Comment{
 			TranslatorComment: `translator comments`,
 		},
 	},
@@ -77,7 +77,7 @@ var testPoComments = []testPoComment{
 #| msgid previous-untranslated-string1
 #| msgid previous-untranslated-string2
 `,
-		Comment: PoComment{
+		PoComment: Comment{
 			TranslatorComment: "translator-comments\nbad comment",
 			ExtractedComment:  "extracted-comments",
 			ReferenceFile:     []string{"src/msgcmp.c", "src/po-lex.c", "src/msg.c"},
@@ -106,7 +106,7 @@ var testPoComments = []testPoComment{
 #| msgid previous-untranslated-string1
 #| msgid previous-untranslated-string2
 `,
-		Comment: PoComment{
+		PoComment: Comment{
 			TranslatorComment: "translator-comments\nbad comment",
 			ExtractedComment:  "extracted-comments",
 			ReferenceFile:     []string{"src/msgcmp.c", "src/po-lex.c", "src/msg.c"},
@@ -138,7 +138,7 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Poedit 1.5.7\n"
 `,
-		Comment: PoComment{
+		PoComment: Comment{
 			TranslatorComment: `SOME DESCRIPTIVE TITLE.
 Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 This file is distributed under the same license as the PACKAGE package.
@@ -156,7 +156,7 @@ FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 "asdad \n asdsad"
 msgstr ""
 `,
-		Comment: PoComment{
+		PoComment: Comment{
 			ExtractedComment: `TRANSLATORS: This is version information in about dialog, it is followed
 by version number when used (wxWidgets 2.8)`,
 			ReferenceFile:  []string{"../src/edframe.cpp"},
@@ -171,7 +171,7 @@ by version number when used (wxWidgets 2.8)`,
 msgid "First string for testing."
 msgstr "Lang1: 1st string"
 `,
-		Comment: PoComment{
+		PoComment: Comment{
 			ReferenceFile: []string{"tst-gettext2.c"},
 			ReferenceLine: []int{33},
 		},
@@ -186,7 +186,7 @@ msgstr ""
 "敲矾弊牢 '%s'甫 佬阑荐 绝嚼聪促\n"
 "%s"
 `,
-		Comment: PoComment{
+		PoComment: Comment{
 			ReferenceFile: []string{"app/app_procs.c"},
 			ReferenceLine: []int{307},
 			Flags:         []string{"fuzzy", "c-format"},

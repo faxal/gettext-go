@@ -25,7 +25,7 @@ var (
 	reBlankLine    = regexp.MustCompile(`^\s*$`)                          //
 )
 
-func (p *PoEntry) isInvalidLine(s string) bool {
+func (p *Message) isInvalidLine(s string) bool {
 	if reComment.MatchString(s) {
 		return false
 	}

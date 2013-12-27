@@ -13,7 +13,7 @@ func TestPoEntry(t *testing.T) {
 	if len(testPoEntrys) != len(testPoEntryStrings) {
 		t.Fatalf("bad test")
 	}
-	var entry PoEntry
+	var entry Message
 	for i := 0; i < len(testPoEntrys); i++ {
 		break
 		if err := entry.readPoEntry(newLineReader(testPoEntryStrings[i])); err != nil {
@@ -50,9 +50,9 @@ msgstr ""
 `,
 }
 
-var testPoEntrys = []PoEntry{
-	PoEntry{
-		Comment: PoComment{
+var testPoEntrys = []Message{
+	Message{
+		PoComment: Comment{
 			TranslatorComment: `SOME DESCRIPTIVE TITLE.
 Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 This file is distributed under the same license as the PACKAGE package.

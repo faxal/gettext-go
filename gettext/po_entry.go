@@ -17,8 +17,8 @@ import (
 // and its corresponding translation.
 //
 // See http://www.gnu.org/software/gettext/manual/html_node/PO-Files.html
-type PoEntry struct {
-	Comment      PoComment
+type Message struct {
+	PoComment    Comment
 	MsgContext   string   // msgctxt context
 	MsgId        string   // msgid untranslated-string
 	MsgIdPlural  string   // msgid_plural untranslated-string-plural
@@ -26,8 +26,8 @@ type PoEntry struct {
 	MsgStrPlural []string // msgstr[0] translated-string-case-0
 }
 
-func (p *PoEntry) readPoEntry(r *lineReader) (err error) {
-	*p = PoEntry{}
+func (p *Message) readPoEntry(r *lineReader) (err error) {
+	*p = Message{}
 	if err = r.skipBlankLine(); err != nil {
 		return
 	}
@@ -38,7 +38,7 @@ func (p *PoEntry) readPoEntry(r *lineReader) (err error) {
 		}
 	}(r.currentPos())
 
-	if err = p.Comment.readPoComment(r); err != nil {
+	if err = p.PoComment.readPoComment(r); err != nil {
 		return
 	}
 	for {
@@ -72,7 +72,7 @@ func (p *PoEntry) readPoEntry(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoEntry) readMsgContext(r *lineReader) (err error) {
+func (p *Message) readMsgContext(r *lineReader) (err error) {
 	var s string
 	if s, _, err = r.currentLine(); err != nil {
 		return
@@ -84,7 +84,7 @@ func (p *PoEntry) readMsgContext(r *lineReader) (err error) {
 	return
 }
 
-func (p *PoEntry) readMsgId(r *lineReader) (err error) {
+func (p *Message) readMsgId(r *lineReader) (err error) {
 	var s string
 	if s, _, err = r.currentLine(); err != nil {
 		return
@@ -96,7 +96,7 @@ func (p *PoEntry) readMsgId(r *lineReader) (err error) {
 	return
 }
 
-func (p *PoEntry) readMsgIdPlural(r *lineReader) (err error) {
+func (p *Message) readMsgIdPlural(r *lineReader) (err error) {
 	var s string
 	if s, _, err = r.currentLine(); err != nil {
 		return
@@ -108,7 +108,7 @@ func (p *PoEntry) readMsgIdPlural(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoEntry) readMsgStrOrPlural(r *lineReader) (err error) {
+func (p *Message) readMsgStrOrPlural(r *lineReader) (err error) {
 	var s string
 	if s, _, err = r.currentLine(); err != nil {
 		return
@@ -130,7 +130,7 @@ func (p *PoEntry) readMsgStrOrPlural(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoEntry) readString(r *lineReader) (msg string, err error) {
+func (p *Message) readString(r *lineReader) (msg string, err error) {
 	var s string
 	if s, _, err = r.readLine(); err != nil {
 		return
@@ -149,9 +149,9 @@ func (p *PoEntry) readString(r *lineReader) (msg string, err error) {
 	return
 }
 
-func (p PoEntry) String() string {
+func (p Message) String() string {
 	var buf bytes.Buffer
-	fmt.Fprintf(&buf, "%s", p.Comment.String())
+	fmt.Fprintf(&buf, "%s", p.PoComment.String())
 	fmt.Fprintf(&buf, "msgid %s", EncodePoString(p.MsgId))
 	if p.MsgIdPlural != "" {
 		fmt.Fprintf(&buf, "msgid_plural %s", EncodePoString(p.MsgIdPlural))

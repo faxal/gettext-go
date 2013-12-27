@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-type PoComment struct {
+type Comment struct {
 	TranslatorComment string   // #  translator-comments // TrimSpace
 	ExtractedComment  string   // #. extracted-comments
 	ReferenceFile     []string // #: src/msgcmp.c:338 src/po-lex.c:699
@@ -22,8 +22,8 @@ type PoComment struct {
 	PrevMsgId         string   // #| msgid previous-untranslated-string
 }
 
-func (p *PoComment) readPoComment(r *lineReader) (err error) {
-	*p = PoComment{}
+func (p *Comment) readPoComment(r *lineReader) (err error) {
+	*p = Comment{}
 	if err = r.skipBlankLine(); err != nil {
 		return err
 	}
@@ -66,7 +66,7 @@ func (p *PoComment) readPoComment(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoComment) readTranslatorComment(r *lineReader) (err error) {
+func (p *Comment) readTranslatorComment(r *lineReader) (err error) {
 	const prefix = "# " // .,:|
 	for {
 		var s string
@@ -92,7 +92,7 @@ func (p *PoComment) readTranslatorComment(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoComment) readExtractedComment(r *lineReader) (err error) {
+func (p *Comment) readExtractedComment(r *lineReader) (err error) {
 	const prefix = "#. "
 	for {
 		var s string
@@ -111,7 +111,7 @@ func (p *PoComment) readExtractedComment(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoComment) readReferenceComment(r *lineReader) (err error) {
+func (p *Comment) readReferenceComment(r *lineReader) (err error) {
 	const prefix = "#: "
 	for {
 		var s string
@@ -137,7 +137,7 @@ func (p *PoComment) readReferenceComment(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoComment) readFlagsComment(r *lineReader) (err error) {
+func (p *Comment) readFlagsComment(r *lineReader) (err error) {
 	const prefix = "#, "
 	for {
 		var s string
@@ -156,7 +156,7 @@ func (p *PoComment) readFlagsComment(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoComment) readPrevMsgContext(r *lineReader) (err error) {
+func (p *Comment) readPrevMsgContext(r *lineReader) (err error) {
 	const prefix = "#| msgctxt "
 	for {
 		var s string
@@ -175,7 +175,7 @@ func (p *PoComment) readPrevMsgContext(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoComment) readPrevMsgId(r *lineReader) (err error) {
+func (p *Comment) readPrevMsgId(r *lineReader) (err error) {
 	const prefix = "#| msgid "
 	for {
 		var s string
@@ -194,7 +194,7 @@ func (p *PoComment) readPrevMsgId(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *PoComment) IsFuzzy() bool {
+func (p *Comment) IsFuzzy() bool {
 	for _, s := range p.Flags {
 		if s == "fuzzy" {
 			return true
@@ -203,7 +203,7 @@ func (p *PoComment) IsFuzzy() bool {
 	return false
 }
 
-func (p PoComment) String() string {
+func (p Comment) String() string {
 	var buf bytes.Buffer
 	if p.TranslatorComment != "" {
 		ss := strings.Split(p.TranslatorComment, "\n")

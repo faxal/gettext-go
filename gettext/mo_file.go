@@ -20,14 +20,14 @@ const (
 	eotSeparator = "\x04"
 )
 
-type MoFile struct {
+type _MoFile struct {
 	MajorVersion uint16
 	MinorVersion uint16
 	MimeHeader   map[string]string
-	MsgStrTable  map[string]MoEntry
+	MsgStrTable  map[string]_MoEntry
 }
 
-type MoEntry struct {
+type _MoEntry struct {
 	MsgContext   string   // msgctxt context
 	MsgId        string   // msgid untranslated-string
 	MsgIdPlural  string   // msgid_plural untranslated-string-plural
@@ -35,15 +35,15 @@ type MoEntry struct {
 	MsgStrPlural []string // msgstr[0] translated-string-case-0
 }
 
-func LoadMoFile(name string) (*MoFile, error) {
+func _LoadMoFile(name string) (*_MoFile, error) {
 	data, err := ioutil.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
-	return LoadMoData(data)
+	return _LoadMoData(data)
 }
 
-func LoadMoData(data []byte) (*MoFile, error) {
+func _LoadMoData(data []byte) (*_MoFile, error) {
 	r := bytes.NewReader(data)
 
 	var magicNumber uint32
@@ -107,11 +107,11 @@ func LoadMoData(data []byte) (*MoFile, error) {
 		}
 	}
 
-	file := &MoFile{
+	file := &_MoFile{
 		MajorVersion: header.MajorVersion,
 		MinorVersion: header.MinorVersion,
 		MimeHeader:   make(map[string]string),
-		MsgStrTable:  make(map[string]MoEntry),
+		MsgStrTable:  make(map[string]_MoEntry),
 	}
 	for i := 0; i < int(header.MsgIdCount); i++ {
 		if _, err := r.Seek(int64(msgIdStart[i]), 0); err != nil {
@@ -142,7 +142,7 @@ func LoadMoData(data []byte) (*MoFile, error) {
 				file.MimeHeader[key] = val
 			}
 		} else {
-			var msg = MoEntry{
+			var msg = _MoEntry{
 				MsgId:  string(msgIdData),
 				MsgStr: string(msgStrData),
 			}
@@ -163,12 +163,12 @@ func LoadMoData(data []byte) (*MoFile, error) {
 	return file, nil
 }
 
-func (f *MoFile) Save(name string) error {
+func (f *_MoFile) Save(name string) error {
 	return ioutil.WriteFile(name, f.Data(name), 0666)
 }
 
 // TODO
-func (f *MoFile) Data(name string) []byte {
+func (f *_MoFile) Data(name string) []byte {
 	var buf bytes.Buffer
 
 	var magicNumber = uint32(moMagicLittleEndian)
@@ -182,7 +182,7 @@ func (f *MoFile) Data(name string) []byte {
 	return buf.Bytes()
 }
 
-func (f *MoFile) String() string {
+func (f *_MoFile) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "# version: %d.%d\n", f.MajorVersion, f.MinorVersion)
 	fmt.Fprintf(&buf, `msgid ""`+"\n")
