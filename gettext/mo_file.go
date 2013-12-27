@@ -15,6 +15,9 @@ import (
 const (
 	moMagicLittleEndian = 0x950412de
 	moMagicBigEndian    = 0xde120495
+
+	nulSeparator = "\x00"
+	eotSeparator = "\x04"
 )
 
 type MoFile struct {
@@ -25,6 +28,7 @@ type MoFile struct {
 }
 
 type MoEntry struct {
+	MsgContext   string   // msgctxt context
 	MsgId        string   // msgid untranslated-string
 	MsgIdPlural  string   // msgid_plural untranslated-string-plural
 	MsgStr       string   // msgstr translated-string
@@ -62,6 +66,8 @@ func LoadMoData(data []byte) (*MoFile, error) {
 		MsgIdCount   uint32
 		MsgIdOffset  uint32
 		MsgStrOffset uint32
+		HashSize     uint32
+		HashOffset   uint32
 	}
 	if err := binary.Read(r, bo, &header); err != nil {
 		return nil, fmt.Errorf("gettext: %v", err)
@@ -136,19 +142,21 @@ func LoadMoData(data []byte) (*MoFile, error) {
 				file.MimeHeader[key] = val
 			}
 		} else {
-			var entry MoEntry
-			msgIdParts := strings.Split(string(msgIdData), "\x00")
-			msgStrParts := strings.Split(string(msgStrData), "\x00")
-			if len(msgIdParts) > 0 {
-				entry.MsgId = msgIdParts[0]
+			var msg = MoEntry{
+				MsgId:  string(msgIdData),
+				MsgStr: string(msgStrData),
 			}
-			if len(msgIdParts) > 1 {
-				entry.MsgIdPlural = msgIdParts[1]
-				entry.MsgStrPlural = msgStrParts
-			} else {
-				entry.MsgStr = msgStrParts[0]
+			// Is this a context message?
+			if idx := strings.Index(msg.MsgId, eotSeparator); idx != -1 {
+				msg.MsgContext, msg.MsgId = msg.MsgId[:idx], msg.MsgId[idx+1:]
 			}
-			file.MsgStrTable[entry.MsgId] = entry
+			// Is this a plural message?
+			if idx := strings.Index(msg.MsgId, nulSeparator); idx != -1 {
+				msg.MsgId, msg.MsgIdPlural = msg.MsgId[:idx], msg.MsgId[idx+1:]
+				msg.MsgStrPlural = strings.Split(msg.MsgStr, nulSeparator)
+				msg.MsgStr = ""
+			}
+			file.MsgStrTable[msg.MsgId] = msg
 		}
 	}
 
