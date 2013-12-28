@@ -19,4 +19,7 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Printf("%v", poFile)
+
+	msg := gettext.Gettext("Hello gettext-go")
+	fmt.Printf("msg: %s\n", msg)
 }

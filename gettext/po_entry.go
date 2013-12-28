@@ -135,7 +135,7 @@ func (p *Message) readString(r *lineReader) (msg string, err error) {
 	if s, _, err = r.readLine(); err != nil {
 		return
 	}
-	msg += DecodePoString(s)
+	msg += decodePoString(s)
 	for {
 		if s, _, err = r.readLine(); err != nil {
 			return
@@ -144,7 +144,7 @@ func (p *Message) readString(r *lineReader) (msg string, err error) {
 			r.unreadLine()
 			break
 		}
-		msg += DecodePoString(s)
+		msg += decodePoString(s)
 	}
 	return
 }
@@ -152,15 +152,15 @@ func (p *Message) readString(r *lineReader) (msg string, err error) {
 func (p Message) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "%s", p.PoComment.String())
-	fmt.Fprintf(&buf, "msgid %s", EncodePoString(p.MsgId))
+	fmt.Fprintf(&buf, "msgid %s", encodePoString(p.MsgId))
 	if p.MsgIdPlural != "" {
-		fmt.Fprintf(&buf, "msgid_plural %s", EncodePoString(p.MsgIdPlural))
+		fmt.Fprintf(&buf, "msgid_plural %s", encodePoString(p.MsgIdPlural))
 	}
 	if p.MsgStr != "" {
-		fmt.Fprintf(&buf, "msgstr %s", EncodePoString(p.MsgStr))
+		fmt.Fprintf(&buf, "msgstr %s", encodePoString(p.MsgStr))
 	}
 	for i := 0; i < len(p.MsgStrPlural); i++ {
-		fmt.Fprintf(&buf, "msgstr[%d] %s", i, EncodePoString(p.MsgStrPlural[i]))
+		fmt.Fprintf(&buf, "msgstr[%d] %s", i, encodePoString(p.MsgStrPlural[i]))
 	}
 	return buf.String()
 }

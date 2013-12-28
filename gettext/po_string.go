@@ -9,8 +9,7 @@ import (
 	"strings"
 )
 
-// DecodePoString decodes text from PO string format.
-func DecodePoString(text string) string {
+func decodePoString(text string) string {
 	lines := strings.Split(text, "\n")
 	for i := 0; i < len(lines); i++ {
 		left := strings.Index(lines[i], `"`)
@@ -28,8 +27,7 @@ func DecodePoString(text string) string {
 	return strings.Join(lines, "")
 }
 
-// EncodePoString encodes text to PO string format.
-func EncodePoString(text string) string {
+func encodePoString(text string) string {
 	var buf bytes.Buffer
 	lines := strings.Split(text, "\n")
 	for i := 0; i < len(lines); i++ {

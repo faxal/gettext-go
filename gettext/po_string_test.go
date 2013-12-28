@@ -9,13 +9,13 @@ import (
 )
 
 func TestDecodePoString(t *testing.T) {
-	if s := DecodePoString(poStrEncode); s != poStrDecode {
+	if s := decodePoString(poStrEncode); s != poStrDecode {
 		t.Fatalf(`expect = %s got = %s`, poStrDecode, s)
 	}
 }
 
 func TestEncodePoString(t *testing.T) {
-	if s := EncodePoString(poStrDecode); s != poStrEncodeStd {
+	if s := encodePoString(poStrDecode); s != poStrEncodeStd {
 		t.Fatalf(`expect = %s; got = %s`, poStrEncodeStd, s)
 	}
 }
