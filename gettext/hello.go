@@ -11,10 +11,11 @@ import (
 	"log"
 
 	"code.google.com/p/gettext-go/gettext"
+	"code.google.com/p/gettext-go/gettext/po"
 )
 
 func main() {
-	poFile, err := gettext.LoadPoFile("../testdata/test.po")
+	poFile, err := po.Load("../testdata/test.po")
 	if err != nil {
 		log.Fatal(err)
 	}

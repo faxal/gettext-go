@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package gettext
+package mo
 
 import (
 	"bytes"
@@ -20,14 +20,14 @@ const (
 	eotSeparator = "\x04"
 )
 
-type _MoFile struct {
+type File struct {
 	MajorVersion uint16
 	MinorVersion uint16
 	MimeHeader   map[string]string
-	MsgStrTable  map[string]_MoEntry
+	MessageMap   map[string]Message
 }
 
-type _MoEntry struct {
+type Message struct {
 	MsgContext   string   // msgctxt context
 	MsgId        string   // msgid untranslated-string
 	MsgIdPlural  string   // msgid_plural untranslated-string-plural
@@ -35,15 +35,15 @@ type _MoEntry struct {
 	MsgStrPlural []string // msgstr[0] translated-string-case-0
 }
 
-func _LoadMoFile(name string) (*_MoFile, error) {
+func Load(name string) (*File, error) {
 	data, err := ioutil.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
-	return _LoadMoData(data)
+	return LoadData(data)
 }
 
-func _LoadMoData(data []byte) (*_MoFile, error) {
+func LoadData(data []byte) (*File, error) {
 	r := bytes.NewReader(data)
 
 	var magicNumber uint32
@@ -107,11 +107,11 @@ func _LoadMoData(data []byte) (*_MoFile, error) {
 		}
 	}
 
-	file := &_MoFile{
+	file := &File{
 		MajorVersion: header.MajorVersion,
 		MinorVersion: header.MinorVersion,
 		MimeHeader:   make(map[string]string),
-		MsgStrTable:  make(map[string]_MoEntry),
+		MessageTable: make(map[string]Message),
 	}
 	for i := 0; i < int(header.MsgIdCount); i++ {
 		if _, err := r.Seek(int64(msgIdStart[i]), 0); err != nil {
@@ -142,7 +142,7 @@ func _LoadMoData(data []byte) (*_MoFile, error) {
 				file.MimeHeader[key] = val
 			}
 		} else {
-			var msg = _MoEntry{
+			var msg = Message{
 				MsgId:  string(msgIdData),
 				MsgStr: string(msgStrData),
 			}
@@ -156,19 +156,19 @@ func _LoadMoData(data []byte) (*_MoFile, error) {
 				msg.MsgStrPlural = strings.Split(msg.MsgStr, nulSeparator)
 				msg.MsgStr = ""
 			}
-			file.MsgStrTable[msg.MsgId] = msg
+			file.MessageTable[msg.MsgId] = msg
 		}
 	}
 
 	return file, nil
 }
 
-func (f *_MoFile) Save(name string) error {
+func (f *File) Save(name string) error {
 	return ioutil.WriteFile(name, f.Data(name), 0666)
 }
 
 // TODO
-func (f *_MoFile) Data(name string) []byte {
+func (f *File) Data(name string) []byte {
 	var buf bytes.Buffer
 
 	var magicNumber = uint32(moMagicLittleEndian)
@@ -176,13 +176,21 @@ func (f *_MoFile) Data(name string) []byte {
 	binary.Write(&buf, binary.LittleEndian, &f.MajorVersion)
 	binary.Write(&buf, binary.LittleEndian, &f.MinorVersion)
 
-	var strCount = uint32(len(f.MsgStrTable)) + 1
+	var strCount = uint32(len(f.MessageTable)) + 1
 	_ = strCount
 
 	return buf.Bytes()
 }
 
-func (f *_MoFile) String() string {
+func (f *File) PGettext(msgctxt, msgid string) string {
+	return msgid
+}
+
+func (f *File) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
+	return msgid
+}
+
+func (f *File) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "# version: %d.%d\n", f.MajorVersion, f.MinorVersion)
 	fmt.Fprintf(&buf, `msgid ""`+"\n")
@@ -192,7 +200,7 @@ func (f *_MoFile) String() string {
 	}
 	fmt.Fprintf(&buf, "\n")
 
-	for k, v := range f.MsgStrTable {
+	for k, v := range f.MessageTable {
 		fmt.Fprintf(&buf, `msgid "%s"`+"\n", k)
 		fmt.Fprintf(&buf, `msgstr "%s"`+"\n", v.MsgStr)
 		fmt.Fprintf(&buf, "\n")

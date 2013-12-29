@@ -4,6 +4,21 @@
 
 package gettext
 
+const (
+	DefaultDomain = "local"
+	DefaultLocal  = "system"
+)
+
+// BindTextdomain sets directory containing message catalogs.
+func BindTextdomain(domain, path string) string {
+	return ""
+}
+
+// Textdomain gets the current message domain.
+func Textdomain(domain, local string) string {
+	return ""
+}
+
 // Attempt to translate a text string into the user's native language, by
 // looking up the translation in a message catalog.
 func Gettext(msgid string) string {
@@ -45,24 +60,4 @@ func DPGettext(domain, msgctxt, msgid string) string {
 
 func DPNGettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
 	return msgid
-}
-
-// GetLocale gets the program's current locale.
-func _GetLocale() string {
-	return ""
-}
-
-// SetLocale sets the program's current locale.
-func _SetLocale(locale string) error {
-	return nil
-}
-
-// GetTextdomain gets the current message domain.
-func GetTextdomain(domainname string) string {
-	return ""
-}
-
-// BindTextdomain sets directory containing message catalogs.
-func BindTextdomain(domainname string, dirname string) string {
-	return ""
 }

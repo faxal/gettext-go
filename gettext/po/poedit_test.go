@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package gettext
+package po
 
 import (
 	"reflect"
@@ -15,7 +15,7 @@ var (
 )
 
 func _TestPoEditPoFile(t *testing.T) {
-	po, err := LoadPoFile(testPoEditPoFile)
+	po, err := Load(testPoEditPoFile)
 	if err != nil {
 		t.Fatal(err)
 	}

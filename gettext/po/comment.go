@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package gettext
+package po
 
 import (
 	"bytes"
@@ -194,13 +194,17 @@ func (p *Comment) readPrevMsgId(r *lineReader) (err error) {
 	return nil
 }
 
-func (p *Comment) IsFuzzy() bool {
+func (p *Comment) GetFuzzy() bool {
 	for _, s := range p.Flags {
 		if s == "fuzzy" {
 			return true
 		}
 	}
 	return false
+}
+
+func (p *Comment) SetFuzzy(fuzzy bool) {
+	//
 }
 
 func (p Comment) String() string {

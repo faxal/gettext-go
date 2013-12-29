@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package gettext
+package po
 
 import (
 	"bytes"
@@ -15,19 +15,19 @@ import (
 //
 // See http://www.gnu.org/software/gettext/manual/html_node/Header-Entry.html#Header-Entry
 type Header struct {
-	PoComment               Comment // Header Comments
-	ProjectIdVersion        string  // Project-Id-Version: PACKAGE VERSION
-	ReportMsgidBugsTo       string  // Report-Msgid-Bugs-To: FIRST AUTHOR <EMAIL@ADDRESS>
-	POTCreationDate         string  // POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE
-	PORevisionDate          string  // PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
-	LastTranslator          string  // Last-Translator: FIRST AUTHOR <EMAIL@ADDRESS>
-	LanguageTeam            string  // Language-Team: golang-china
-	Language                string  // Language: Chinese
-	MimeVersion             string  // MIME-Version: 1.0
-	ContentType             string  // Content-Type: text/plain; charset=UTF-8
-	ContentTransferEncoding string  // Content-Transfer-Encoding: 8bit
-	PluralForms             string  // Plural-Forms: nplurals=2; plural=n == 1 ? 0 : 1;
-	XGenerator              string  // X-Generator: Poedit 1.5.5
+	Comment                        // Header Comments
+	ProjectIdVersion        string // Project-Id-Version: PACKAGE VERSION
+	ReportMsgidBugsTo       string // Report-Msgid-Bugs-To: FIRST AUTHOR <EMAIL@ADDRESS>
+	POTCreationDate         string // POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE
+	PORevisionDate          string // PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
+	LastTranslator          string // Last-Translator: FIRST AUTHOR <EMAIL@ADDRESS>
+	LanguageTeam            string // Language-Team: golang-china
+	Language                string // Language: Chinese
+	MimeVersion             string // MIME-Version: 1.0
+	ContentType             string // Content-Type: text/plain; charset=UTF-8
+	ContentTransferEncoding string // Content-Transfer-Encoding: 8bit
+	PluralForms             string // Plural-Forms: nplurals=2; plural=n == 1 ? 0 : 1;
+	XGenerator              string // X-Generator: Poedit 1.5.5
 	UnknowFields            map[string]string
 }
 
@@ -75,12 +75,12 @@ func (p *Header) parseHeader(entry *Message) {
 			p.UnknowFields[key] = val
 		}
 	}
-	p.PoComment = entry.PoComment
+	p.Comment = entry.Comment
 }
 
 func (p Header) String() string {
 	var buf bytes.Buffer
-	fmt.Fprintf(&buf, "%s", p.PoComment.String())
+	fmt.Fprintf(&buf, "%s", p.Comment.String())
 	fmt.Fprintf(&buf, `msgid ""`+"\n")
 	fmt.Fprintf(&buf, `msgstr ""`+"\n")
 	fmt.Fprintf(&buf, `"%s: %s\n"`+"\n", "Project-Id-Version", p.ProjectIdVersion)

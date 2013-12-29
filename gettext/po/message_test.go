@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package gettext
+package po
 
 import (
 	"reflect"
@@ -52,7 +52,7 @@ msgstr ""
 
 var testPoEntrys = []Message{
 	Message{
-		PoComment: Comment{
+		Comment: Comment{
 			TranslatorComment: `SOME DESCRIPTIVE TITLE.
 Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 This file is distributed under the same license as the PACKAGE package.

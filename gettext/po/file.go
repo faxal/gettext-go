@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package gettext
+package po
 
 import (
 	"bytes"
@@ -19,19 +19,15 @@ type File struct {
 	Messages   []Message
 }
 
-func LoadPoFile(name string) (*File, error) {
+func Load(name string) (*File, error) {
 	data, err := ioutil.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
-	return LoadPoData(data)
+	return LoadData(data)
 }
 
-func LoadMoFile(name string) (*File, error) {
-	return nil, nil
-}
-
-func LoadPoData(data []byte) (*File, error) {
+func LoadData(data []byte) (*File, error) {
 	var file File
 	r := newLineReader(string(data))
 	for {
@@ -51,24 +47,20 @@ func LoadPoData(data []byte) (*File, error) {
 	return &file, nil
 }
 
-func LoadMoData(data []byte) (*File, error) {
-	return nil, nil
-}
-
-func (f *File) SavePoFile(name string) error {
+func (f *File) Save(name string) error {
 	return ioutil.WriteFile(name, []byte(f.String()), 0666)
 }
 
-func (f *File) SaveMoFile(name string) error {
-	return ioutil.WriteFile(name, []byte(f.String()), 0666)
-}
-
-func (f *File) PoData(name string) []byte {
+func (f *File) Data(name string) []byte {
 	return nil
 }
 
-func (f *File) MoData(name string) []byte {
-	return nil
+func (f *File) PGettext(msgctxt, msgid string) string {
+	return msgid
+}
+
+func (f *File) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
+	return msgid
 }
 
 func (f *File) String() string {

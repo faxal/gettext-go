@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package gettext
+package po
 
 import (
 	"bytes"
@@ -18,7 +18,7 @@ import (
 //
 // See http://www.gnu.org/software/gettext/manual/html_node/PO-Files.html
 type Message struct {
-	PoComment    Comment
+	Comment               // Coments
 	MsgContext   string   // msgctxt context
 	MsgId        string   // msgid untranslated-string
 	MsgIdPlural  string   // msgid_plural untranslated-string-plural
@@ -38,7 +38,7 @@ func (p *Message) readPoEntry(r *lineReader) (err error) {
 		}
 	}(r.currentPos())
 
-	if err = p.PoComment.readPoComment(r); err != nil {
+	if err = p.Comment.readPoComment(r); err != nil {
 		return
 	}
 	for {
@@ -151,7 +151,7 @@ func (p *Message) readString(r *lineReader) (msg string, err error) {
 
 func (p Message) String() string {
 	var buf bytes.Buffer
-	fmt.Fprintf(&buf, "%s", p.PoComment.String())
+	fmt.Fprintf(&buf, "%s", p.Comment.String())
 	fmt.Fprintf(&buf, "msgid %s", encodePoString(p.MsgId))
 	if p.MsgIdPlural != "" {
 		fmt.Fprintf(&buf, "msgid_plural %s", encodePoString(p.MsgIdPlural))
