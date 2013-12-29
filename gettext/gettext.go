@@ -4,19 +4,25 @@
 
 package gettext
 
-const (
-	DefaultDomain = "local"
-	DefaultLocal  = "system"
-)
-
-// BindTextdomain sets directory containing message catalogs.
-func BindTextdomain(domain, path string) string {
-	return ""
+func GetBindTextdomainList() (domain, path []string) {
+	return
 }
 
-// Textdomain gets the current message domain.
-func Textdomain(domain, local string) string {
-	return ""
+func GetCurrentTextdomain() (domain, locale string) {
+	return
+}
+
+// BindTextdomain sets directory containing message catalogs.
+func BindTextdomain(domain, path string) error {
+	return nil
+}
+
+func SwitchTextdomain(domain, locale string) error {
+	return nil
+}
+
+func ResetTextdomain() {
+	//
 }
 
 // Attempt to translate a text string into the user's native language, by
