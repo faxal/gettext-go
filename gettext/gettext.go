@@ -4,25 +4,19 @@
 
 package gettext
 
-func GetBindTextdomainList() (domain, path []string) {
-	return
+// SetLocale sets or queries the program's current locale.
+func SetLocale(locale string) string {
+	return ""
 }
 
-func GetCurrentTextdomain() (domain, locale string) {
-	return
+// Textdomain sets or retrieves the current message domain.
+func Textdomain(domain string) string {
+	return ""
 }
 
 // BindTextdomain sets directory containing message catalogs.
 func BindTextdomain(domain, path string) error {
 	return nil
-}
-
-func SwitchTextdomain(domain, locale string) error {
-	return nil
-}
-
-func ResetTextdomain() {
-	//
 }
 
 // Attempt to translate a text string into the user's native language, by
