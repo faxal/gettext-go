@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"sort"
 
 	"code.google.com/p/gettext-go/gettext/plural"
 )
@@ -18,9 +19,17 @@ import (
 // See http://www.gnu.org/software/gettext/manual/html_node/PO-Files.html
 type File struct {
 	MimeHeader    Header
-	Messages      []Message // discard
 	MessageMap    map[string]Message
 	PluralFormula func(n int) int
+}
+
+// MakeMessageMapKey returns the File.MessageMap key string.
+func MakeMessageMapKey(msgctxt, msgid string) string {
+	if msgctxt != "" {
+		const eotSeparator = "\x04"
+		return msgctxt + eotSeparator + msgid
+	}
+	return msgid
 }
 
 // Load loads a named po file.
@@ -34,21 +43,23 @@ func Load(name string, pluralFormula func(n int) int) (*File, error) {
 
 // LoadData loads po file format data.
 func LoadData(data []byte, pluralFormula func(n int) int) (*File, error) {
-	var file File
 	r := newLineReader(string(data))
+	var file = File{
+		MessageMap: make(map[string]Message),
+	}
 	for {
-		var entry Message
-		if err := entry.readPoEntry(r); err != nil {
+		var msg Message
+		if err := msg.readPoEntry(r); err != nil {
 			if err == io.EOF {
 				return &file, nil
 			}
 			return nil, err
 		}
-		if entry.MsgId == "" {
-			file.MimeHeader.parseHeader(&entry)
+		if msg.MsgId == "" {
+			file.MimeHeader.parseHeader(&msg)
 			continue
 		}
-		file.Messages = append(file.Messages, entry)
+		file.MessageMap[MakeMessageMapKey(msg.MsgContext, msg.MsgId)] = msg
 	}
 	file.PluralFormula = pluralFormula
 	if file.PluralFormula == nil {
@@ -68,9 +79,20 @@ func (f *File) Save(name string) error {
 }
 
 // Save returns a po file format data.
-func (f *File) Data(name string) []byte {
+func (f *File) Data() []byte {
 	// sort the massge as ReferenceFile/ReferenceLine field
-	panic("TODO")
+	var messages []Message
+	for _, v := range f.MessageMap {
+		messages = append(messages, v)
+	}
+	sort.Sort(byMessages(messages))
+
+	var buf bytes.Buffer
+	fmt.Fprintf(&buf, "%s\n", f.MimeHeader.String())
+	for i := 0; i < len(messages); i++ {
+		fmt.Fprintf(&buf, "%s\n", messages[i].String())
+	}
+	return buf.Bytes()
 }
 
 // PGettext attempt to translate a text string,
@@ -93,15 +115,40 @@ func (f *File) PGettext(msgctxt, msgid string) string {
 //		msg := poFile.PNGettext("gettext-go.example", "%d people", "%d peoples", 2)
 //	}
 func (f *File) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
-	panic("TODO")
+	n = f.PluralFormula(n)
+	if ss := f.findMsgStrPlural(msgctxt, msgid, msgidPlural); len(ss) != 0 {
+		if n >= len(ss) {
+			n = len(ss) - 1
+		}
+		return ss[n]
+	}
+	if msgidPlural != "" && n > 0 {
+		return msgidPlural
+	} else {
+		return msgid
+	}
+}
+
+func (f *File) findMsgStrPlural(msgctxt, msgid, msgidPlural string) []string {
+	if v, ok := f.MessageMap[MakeMessageMapKey(msgctxt, msgid)]; ok {
+		if len(v.MsgIdPlural) != 0 {
+			if len(v.MsgStrPlural) != 0 {
+				return v.MsgStrPlural
+			} else {
+				return nil
+			}
+		} else {
+			if len(v.MsgStr) != 0 {
+				return []string{v.MsgStr}
+			} else {
+				return nil
+			}
+		}
+	}
+	return nil
 }
 
 // String returns the po format file string.
 func (f *File) String() string {
-	var buf bytes.Buffer
-	fmt.Fprintf(&buf, "%s\n", f.MimeHeader.String())
-	for i := 0; i < len(f.Messages); i++ {
-		fmt.Fprintf(&buf, "%s\n", f.Messages[i].String())
-	}
-	return buf.String()
+	return string(f.Data())
 }

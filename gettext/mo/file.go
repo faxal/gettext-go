@@ -229,26 +229,37 @@ func (f *File) PGettext(msgctxt, msgid string) string {
 //	}
 func (f *File) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
 	n = f.PluralFormula(n)
-	key := MakeMessageMapKey(msgctxt, msgid)
-	if v, ok := f.MessageMap[key]; ok {
-		if msgidPlural != "" {
-			if n >= len(v.MsgStrPlural) {
-				n = len(v.MsgStrPlural) - 1
-			}
-			return v.MsgStrPlural[n]
-		} else {
-			if v.MsgIdPlural != "" {
-				return v.MsgStrPlural[0]
-			} else {
-				return v.MsgStr
-			}
+	if ss := f.findMsgStrPlural(msgctxt, msgid, msgidPlural); len(ss) != 0 {
+		if n >= len(ss) {
+			n = len(ss) - 1
 		}
+		return ss[n]
 	}
 	if msgidPlural != "" && n > 0 {
 		return msgidPlural
 	} else {
 		return msgid
 	}
+}
+
+func (f *File) findMsgStrPlural(msgctxt, msgid, msgidPlural string) []string {
+	key := MakeMessageMapKey(msgctxt, msgid)
+	if v, ok := f.MessageMap[key]; ok {
+		if len(v.MsgIdPlural) != 0 {
+			if len(v.MsgStrPlural) != 0 {
+				return v.MsgStrPlural
+			} else {
+				return nil
+			}
+		} else {
+			if len(v.MsgStr) != 0 {
+				return []string{v.MsgStr}
+			} else {
+				return nil
+			}
+		}
+	}
+	return nil
 }
 
 // String returns the po format file string.

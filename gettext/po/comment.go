@@ -24,6 +24,24 @@ type Comment struct {
 	PrevMsgId         string   // #| msgid previous-untranslated-string
 }
 
+func (p *Comment) less(q *Comment) bool {
+	if p.StartLine != 0 || q.StartLine != 0 {
+		return p.StartLine < q.StartLine
+	}
+	if a, b := len(p.ReferenceFile), len(q.ReferenceFile); a != b {
+		return a < b
+	}
+	for i := 0; i < len(p.ReferenceFile); i++ {
+		if a, b := p.ReferenceFile[i], q.ReferenceFile[i]; a != b {
+			return a < b
+		}
+		if a, b := p.ReferenceLine[i], q.ReferenceLine[i]; a != b {
+			return a < b
+		}
+	}
+	return false
+}
+
 func (p *Comment) readPoComment(r *lineReader) (err error) {
 	*p = Comment{}
 	if err = r.skipBlankLine(); err != nil {
@@ -36,7 +54,7 @@ func (p *Comment) readPoComment(r *lineReader) (err error) {
 		}
 	}(r.currentPos())
 
-	p.StartLine = r.currentPos()
+	p.StartLine = r.currentPos() + 1
 	for {
 		var s string
 		if s, _, err = r.currentLine(); err != nil {

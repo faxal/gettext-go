@@ -26,15 +26,27 @@ type Message struct {
 	MsgStrPlural []string // msgstr[0] translated-string-case-0
 }
 
-type byMessage []Message
+type byMessages []Message
 
-func (d byMessage) Len() int {
+func (d byMessages) Len() int {
 	return len(d)
 }
-func (d byMessage) Less(i, j int) bool {
-	return d[i].Comment.StartLine < d[j].Comment.StartLine
+func (d byMessages) Less(i, j int) bool {
+	if d[i].Comment.less(&d[j].Comment) {
+		return true
+	}
+	if a, b := d[i].MsgContext, d[j].MsgContext; a != b {
+		return a < b
+	}
+	if a, b := d[i].MsgId, d[j].MsgId; a != b {
+		return a < b
+	}
+	if a, b := d[i].MsgIdPlural, d[j].MsgIdPlural; a != b {
+		return a < b
+	}
+	return false
 }
-func (d byMessage) Swap(i, j int) {
+func (d byMessages) Swap(i, j int) {
 	d[i], d[j] = d[j], d[i]
 }
 
