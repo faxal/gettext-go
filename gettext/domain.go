@@ -106,7 +106,7 @@ func (p *domainTable) globDomainLocales(domain, path string) (locals, files []st
 		return
 	}
 	for i := 0; i < len(files); i++ {
-		local := files[i]
+		local := filepath.ToSlash(files[i])
 		local = local[:strings.Index(local, "/LC_MESSAGES/"+domain+".mo")]
 		local = local[strings.LastIndex(local, "/")+1:]
 		locals = append(locals, local)

@@ -12,8 +12,8 @@ Example:
 
 	func main() {
 		gettext.SetLocale("zh_CN")
-		gettext.BindTextdomain("app", "local")
-		gettext.Textdomain(app)
+		gettext.BindTextdomain("hello", "local")
+		gettext.Textdomain("hello")
 
 		fmt.Println(gettext.Gettext("Hello, world!"))
 		// Output: 你好, 世界!
