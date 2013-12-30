@@ -5,13 +5,19 @@
 package gettext
 
 var (
-	DefaultLocale = getDefaultLocale() // initialized with $(LC_MESSAGES) or $(LANG)
+	DefaultLocale = getDefaultLocale() // default local is $(LC_MESSAGES) or $(LANG)
 )
 
-// SetLocale sets or queries the program's current locale.
+// SetLocale sets and queries the program's current locale.
+//
+// If the locale is not empty string, set the new local.
+//
+// If the locale is empty string, don't change anything.
+//
+// Returns is the current locale.
 //
 // Examples:
-//	SetLocale("")      // get locale: DefaultLocale
+//	SetLocale("")      // get locale: return DefaultLocale
 //	SetLocale("zh_CN") // set locale: return zh_CN
 //	SetLocale("")      // get locale: return zh_CN
 func SetLocale(locale string) (string, error) {
@@ -23,11 +29,39 @@ func SetLocale(locale string) (string, error) {
 	return dTable.GetLocale(), nil
 }
 
-// Textdomain sets or retrieves the current message domain.
+// BindTextdomain sets and queries program's domains.
+//
+// If the domain and path are all not empty string, bind the new domain.
+// If the domain already exists, return error.
+//
+// If the domain is not empty string, but the path is the empty string,
+// delete the domain.
+// If the domain don't exists, return error.
+//
+// If the domain and the path are all empty string, don't change anything.
+//
+// Returns is the all bind domains.
 //
 // Examples:
-//	Textdomain("poedit") // set domain
-//	Textdomain("")       // get domain
+//	BindTextdomain("poedit", "local") // bind "poedit" domain
+//	BindTextdomain("", "")            // return all domains
+//	BindTextdomain("poedit", "")      // delete "poedit" domain
+//	BindTextdomain("", "")            // return all domains
+func BindTextdomain(domain, path string) (domains, paths []string, err error) {
+	return dTable.Bind(domain, path)
+}
+
+// Textdomain sets and retrieves the current message domain.
+//
+// If the domain is not empty string, set the new domains.
+//
+// If the domain is empty string, don't change anything.
+//
+// Returns is the all used domains.
+//
+// Examples:
+//	Textdomain("poedit") // set domain: poedit
+//	Textdomain("")       // get domain: return poedit
 func Textdomain(domain string) (string, error) {
 	if domain != "" {
 		if err := dTable.SetDomain(domain); err != nil {
@@ -35,14 +69,6 @@ func Textdomain(domain string) (string, error) {
 		}
 	}
 	return dTable.GetDomain(), nil
-}
-
-// BindTextdomain sets directory containing message.
-//
-// Examples:
-//	BindTextdomain("poedit", "local")
-func BindTextdomain(domain, path string) error {
-	return dTable.Bind(domain, path)
 }
 
 // Gettext attempt to translate a text string into the user's native language,
@@ -72,7 +98,7 @@ func NGettext(msgid, msgidPlural string, n int) string {
 	return PNGettext(callerName(2), msgid, msgidPlural, n)
 }
 
-// Gettext attempt to translate a text string into the user's native language,
+// PGettext attempt to translate a text string into the user's native language,
 // by looking up the translation in a message catalog.
 //
 // Examples:
@@ -105,7 +131,7 @@ func DGettext(domain, msgid string) string {
 	return DPGettext(domain, callerName(2), msgid)
 }
 
-// DGettext like NGettext(), but looking up the message in the specified domain.
+// DNGettext like NGettext(), but looking up the message in the specified domain.
 //
 // Examples:
 //	func Foo() {
@@ -115,7 +141,7 @@ func DNGettext(domain, msgid, msgidPlural string, n int) string {
 	return DPNGettext(domain, callerName(2), msgid, msgidPlural, n)
 }
 
-// DGettext like PGettext(), but looking up the message in the specified domain.
+// DPGettext like PGettext(), but looking up the message in the specified domain.
 //
 // Examples:
 //	func Foo() {

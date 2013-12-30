@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package po implements a GNU PO file decoder and encoder.
+Package po provides support for reading and writing GNU PO file.
 
 Examples:
 	import (

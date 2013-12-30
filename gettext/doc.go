@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package gettext implements GNU's gettext.
+Package gettext  implements a basic GNU's gettext library.
 
 Example:
 	import (

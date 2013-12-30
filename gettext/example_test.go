@@ -2,8 +2,6 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build ignore
-
 package gettext_test
 
 import (
@@ -12,18 +10,11 @@ import (
 	"code.google.com/p/gettext-go/gettext"
 )
 
-func ExampleLevenshteinString() {
-	a := []rune("kitten")
-	b := []rune("sitting")
-	d := gettext.LevenshteinString(a, b)
-	fmt.Println(d)
-	// Output: 3
-}
+func _Example() {
+	gettext.SetLocale("zh_CN")
+	gettext.BindTextdomain("hello", "../examples/local")
+	gettext.Textdomain("hello")
 
-func ExampleLevenshteinWords() {
-	a := []string{"What", "day", "is", "today", "?"}
-	b := []string{"What", "is", "the", "date", "today", "?"}
-	d := gettext.LevenshteinWords(a, b)
-	fmt.Println(d)
-	// Output: 3
+	fmt.Println(gettext.PGettext("main.main", "Hello, world!"))
+	// Output: 你好, 世界!
 }

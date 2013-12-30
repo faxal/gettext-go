@@ -16,11 +16,12 @@ import (
 var dTable = newDomainTable()
 
 type domainTable struct {
-	mutex           sync.Mutex
-	locale          string
-	domain          string
-	domainPath      map[string]string
-	domainLocalFile map[string]*mo.File
+	mutex        sync.Mutex
+	locale       string
+	domain       string
+	domainPath   map[string]string
+	domainLocals map[string][]string
+	moFileMap    map[string]*mo.File
 }
 
 func makeDomainFileKey(domain, locale string) string {
@@ -29,30 +30,61 @@ func makeDomainFileKey(domain, locale string) string {
 
 func newDomainTable() *domainTable {
 	return &domainTable{
-		locale:          DefaultLocale,
-		domainPath:      make(map[string]string),
-		domainLocalFile: make(map[string]*mo.File),
+		locale:       DefaultLocale,
+		domainPath:   make(map[string]string),
+		domainLocals: make(map[string][]string),
+		moFileMap:    make(map[string]*mo.File),
 	}
 }
 
-func (p *domainTable) Bind(domain, path string) error {
+func (p *domainTable) Bind(domain, path string) (domains, paths []string, err error) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
-	if _, ok := p.domainPath[domain]; ok {
-		return fmt.Errorf("gettext: domain already exists!")
-	}
-	locals, files, err := p.globDomainLocales(domain, path)
-	if err != nil {
-		return err
-	}
-	for i := 0; i < len(files); i++ {
-		if f, err := mo.Load(files[i], nil); err == nil { // ingore error
-			key := makeDomainFileKey(domain, locals[i])
-			p.domainLocalFile[key] = f
+
+	switch {
+	case domain != "" && path != "": // bind new domain
+		if _, ok := p.domainPath[domain]; ok {
+			err = fmt.Errorf("gettext: domain already exists!")
+			return
 		}
+		var locals, files []string
+		locals, files, err = p.globDomainLocales(domain, path)
+		if err != nil {
+			return
+		}
+		for i := 0; i < len(files); i++ {
+			if f, err := mo.Load(files[i], nil); err == nil { // ingore error
+				key := makeDomainFileKey(domain, locals[i])
+				p.moFileMap[key] = f
+			}
+		}
+		p.domainPath[domain] = path
+		p.domainLocals[domain] = locals
+	case domain != "" && path == "": // delete domain
+		if _, ok := p.domainPath[domain]; !ok {
+			err = fmt.Errorf("gettext: domain not exists!")
+			return
+		}
+		// enum locals
+		var keys []string
+		for _, v := range p.domainLocals[domain] {
+			key := makeDomainFileKey(domain, v)
+			keys = append(keys, key)
+		}
+		// delete all mo files
+		for _, k := range keys {
+			delete(p.moFileMap, k)
+		}
+		delete(p.domainLocals, domain)
+		delete(p.domainPath, domain)
 	}
-	p.domainPath[domain] = path
-	return nil
+
+	// return all bind domain
+	for k, v := range p.domainPath {
+		domains = append(domains, k)
+		paths = append(paths, v)
+	}
+	return
 }
 
 func (p *domainTable) GetLocale() string {
@@ -77,6 +109,11 @@ func (p *domainTable) GetDomain() string {
 func (p *domainTable) SetDomain(domain string) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
+	if domain != "" {
+		if _, ok := p.domainPath[domain]; !ok {
+			return fmt.Errorf("gettext: domain not exists!")
+		}
+	}
 	p.domain = domain
 	return nil
 }
@@ -94,7 +131,7 @@ func (p *domainTable) DPNGettext(domain, msgctxt, msgid, msgidPlural string, n i
 }
 
 func (p *domainTable) gettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
-	if f, ok := p.domainLocalFile[makeDomainFileKey(domain, p.locale)]; ok {
+	if f, ok := p.moFileMap[makeDomainFileKey(domain, p.locale)]; ok {
 		return f.PNGettext(msgctxt, msgid, msgidPlural, n)
 	}
 	return msgid

@@ -78,6 +78,7 @@ func (p *Header) parseHeader(entry *Message) {
 	p.Comment = entry.Comment
 }
 
+// String returns the po format header string.
 func (p Header) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "%s", p.Comment.String())

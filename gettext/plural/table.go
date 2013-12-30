@@ -7,7 +7,7 @@ package plural
 // FormsTable are standard hard-coded plural rules.
 // The application developers and the translators need to understand them.
 //
-// See gettext/gettext-tools/src/plural-table.c
+// See GNU's gettext library source code: gettext/gettext-tools/src/plural-table.c
 var FormsTable = []struct {
 	Lang     string
 	Language string

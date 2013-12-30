@@ -161,6 +161,7 @@ func (p *Message) readString(r *lineReader) (msg string, err error) {
 	return
 }
 
+// String returns the po format entry string.
 func (p Message) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "%s", p.Comment.String())

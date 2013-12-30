@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package mo implements a GNU MO file decoder and encoder.
+Package mo provides support for reading and writing GNU MO file.
 
 Examples:
 	import (

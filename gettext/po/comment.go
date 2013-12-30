@@ -12,6 +12,7 @@ import (
 	"strings"
 )
 
+// Comment represents every message's comments.
 type Comment struct {
 	StartLine         int      // comment start line
 	TranslatorComment string   // #  translator-comments // TrimSpace
@@ -196,6 +197,7 @@ func (p *Comment) readPrevMsgId(r *lineReader) (err error) {
 	return nil
 }
 
+// GetFuzzy gets the fuzzy flag.
 func (p *Comment) GetFuzzy() bool {
 	for _, s := range p.Flags {
 		if s == "fuzzy" {
@@ -205,10 +207,12 @@ func (p *Comment) GetFuzzy() bool {
 	return false
 }
 
+// SetFuzzy sets the fuzzy flag.
 func (p *Comment) SetFuzzy(fuzzy bool) {
 	//
 }
 
+// String returns the po format comment string.
 func (p Comment) String() string {
 	var buf bytes.Buffer
 	if p.TranslatorComment != "" {

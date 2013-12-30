@@ -15,13 +15,17 @@ import (
 )
 
 const (
+	moHeaderSize        = 28
 	moMagicLittleEndian = 0x950412de
 	moMagicBigEndian    = 0xde120495
 
-	EotSeparator = "\x04"
-	NulSeparator = "\x00"
+	EotSeparator = "\x04" // msgctxt and msgid separator
+	NulSeparator = "\x00" // msgid and msgstr separator
 )
 
+// File represents an MO File.
+//
+// See http://www.gnu.org/software/gettext/manual/html_node/MO-Files.html
 type File struct {
 	MajorVersion  uint16
 	MinorVersion  uint16
@@ -30,6 +34,11 @@ type File struct {
 	PluralFormula func(n int) int
 }
 
+// A PO file is made up of many entries,
+// each entry holding the relation between an original untranslated string
+// and its corresponding translation.
+//
+// See http://www.gnu.org/software/gettext/manual/html_node/PO-Files.html
 type Message struct {
 	MsgContext   string   // msgctxt context
 	MsgId        string   // msgid untranslated-string
@@ -38,6 +47,12 @@ type Message struct {
 	MsgStrPlural []string // msgstr[0] translated-string-case-0
 }
 
+type moStrPos struct {
+	Addr uint32
+	Size uint32
+}
+
+// MakeMessageMapKey returns the File.MessageMap key string.
 func MakeMessageMapKey(msgctxt, msgid string) string {
 	if msgctxt != "" {
 		return msgctxt + EotSeparator + msgid
@@ -45,6 +60,7 @@ func MakeMessageMapKey(msgctxt, msgid string) string {
 	return msgid
 }
 
+// Load loads a named mo file.
 func Load(name string, pluralFormula func(n int) int) (*File, error) {
 	data, err := ioutil.ReadFile(name)
 	if err != nil {
@@ -53,6 +69,7 @@ func Load(name string, pluralFormula func(n int) int) (*File, error) {
 	return LoadData(data, pluralFormula)
 }
 
+// LoadData loads mo file format data.
 func LoadData(data []byte, pluralFormula func(n int) int) (*File, error) {
 	r := bytes.NewReader(data)
 
@@ -181,29 +198,35 @@ func LoadData(data []byte, pluralFormula func(n int) int) (*File, error) {
 	return file, nil
 }
 
+// Save saves a mo file.
 func (f *File) Save(name string) error {
 	return ioutil.WriteFile(name, f.Data(name), 0666)
 }
 
-// TODO
+// Save returns a mo file format data.
 func (f *File) Data(name string) []byte {
-	var buf bytes.Buffer
-
-	var magicNumber = uint32(moMagicLittleEndian)
-	binary.Write(&buf, binary.LittleEndian, &magicNumber)
-	binary.Write(&buf, binary.LittleEndian, &f.MajorVersion)
-	binary.Write(&buf, binary.LittleEndian, &f.MinorVersion)
-
-	var strCount = uint32(len(f.MessageMap)) + 1
-	_ = strCount
-
-	return buf.Bytes()
+	panic("TODO")
 }
 
+// PGettext attempt to translate a text string,
+// by looking up the translation in current mo file.
+//
+// Examples:
+//	func Foo() {
+//		msg := moFile.PGettext("gettext-go.example", "Hello") // msgctxt is "gettext-go.example"
+//	}
 func (f *File) PGettext(msgctxt, msgid string) string {
 	return f.PNGettext(msgctxt, msgid, "", 0)
 }
 
+// PNGettext attempt to translate a text string,
+// by looking up the translation in current mo file.
+// catalog.
+//
+// Examples:
+//	func Foo() {
+//		msg := moFile.PNGettext("gettext-go.example", "%d people", "%d peoples", 2)
+//	}
 func (f *File) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
 	n = f.PluralFormula(n)
 	key := MakeMessageMapKey(msgctxt, msgid)
@@ -228,6 +251,7 @@ func (f *File) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
 	}
 }
 
+// String returns the po format file string.
 func (f *File) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "# version: %d.%d\n", f.MajorVersion, f.MinorVersion)

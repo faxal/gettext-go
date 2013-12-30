@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-// Formula is the language's plural rule formula.
+// Formula provides the language's standard plural formula.
 func Formula(lang string) func(n int) int {
 	if idx := index(lang); idx != -1 {
 		return formulaTable[fmtForms(FormsTable[idx].Value)]

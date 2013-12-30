@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package plural implements the default plural formula parser.
+Package plural provides standard plural formulas.
 
 Examples:
 	import (
