@@ -20,11 +20,14 @@ func getDefaultLocale() string {
 }
 
 func parseDefaultLocale(lang string) string {
-	// en_US/zh_CN/zh_TW/el_GR@euro/...
+	// en_US/en_US.UTF-8/zh_CN/zh_TW/el_GR@euro/...
 	if idx := strings.Index(lang, ":"); idx != -1 {
 		lang = lang[:idx]
 	}
 	if idx := strings.Index(lang, "@"); idx != -1 {
+		lang = lang[:idx]
+	}
+	if idx := strings.Index(lang, "."); idx != -1 {
 		lang = lang[:idx]
 	}
 	return strings.TrimSpace(lang)
