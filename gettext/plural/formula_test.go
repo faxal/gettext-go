@@ -2,9 +2,12 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build !windows
+package plural
 
-package gettext
+import (
+	"testing"
+)
 
-// cgo:
-// setlocale(LC_CTYPE, NULL);
+func TestFormula(t *testing.T) {
+	//
+}

@@ -13,6 +13,7 @@ import (
 )
 
 type Comment struct {
+	StartLine         int      // comment start line
 	TranslatorComment string   // #  translator-comments // TrimSpace
 	ExtractedComment  string   // #. extracted-comments
 	ReferenceFile     []string // #: src/msgcmp.c:338 src/po-lex.c:699
@@ -34,6 +35,7 @@ func (p *Comment) readPoComment(r *lineReader) (err error) {
 		}
 	}(r.currentPos())
 
+	p.StartLine = r.currentPos()
 	for {
 		var s string
 		if s, _, err = r.currentLine(); err != nil {

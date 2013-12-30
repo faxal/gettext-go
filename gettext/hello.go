@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	poFile, err := po.Load("../testdata/test.po")
+	poFile, err := po.Load("../testdata/test.po", nil)
 	if err != nil {
 		log.Fatal(err)
 	}

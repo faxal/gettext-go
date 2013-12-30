@@ -10,21 +10,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
+
+	"code.google.com/p/gettext-go/gettext/plural"
 )
 
 const (
 	moMagicLittleEndian = 0x950412de
 	moMagicBigEndian    = 0xde120495
 
-	nulSeparator = "\x00"
-	eotSeparator = "\x04"
+	EotSeparator = "\x04"
+	NulSeparator = "\x00"
 )
 
 type File struct {
-	MajorVersion uint16
-	MinorVersion uint16
-	MimeHeader   map[string]string
-	MessageMap   map[string]Message
+	MajorVersion  uint16
+	MinorVersion  uint16
+	MimeHeader    map[string]string
+	MessageMap    map[string]Message
+	PluralFormula func(n int) int
 }
 
 type Message struct {
@@ -35,15 +38,22 @@ type Message struct {
 	MsgStrPlural []string // msgstr[0] translated-string-case-0
 }
 
-func Load(name string) (*File, error) {
+func MakeMessageMapKey(msgctxt, msgid string) string {
+	if msgctxt != "" {
+		return msgctxt + EotSeparator + msgid
+	}
+	return msgid
+}
+
+func Load(name string, pluralFormula func(n int) int) (*File, error) {
 	data, err := ioutil.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
-	return LoadData(data)
+	return LoadData(data, pluralFormula)
 }
 
-func LoadData(data []byte) (*File, error) {
+func LoadData(data []byte, pluralFormula func(n int) int) (*File, error) {
 	r := bytes.NewReader(data)
 
 	var magicNumber uint32
@@ -108,10 +118,11 @@ func LoadData(data []byte) (*File, error) {
 	}
 
 	file := &File{
-		MajorVersion: header.MajorVersion,
-		MinorVersion: header.MinorVersion,
-		MimeHeader:   make(map[string]string),
-		MessageTable: make(map[string]Message),
+		MajorVersion:  header.MajorVersion,
+		MinorVersion:  header.MinorVersion,
+		MimeHeader:    make(map[string]string),
+		MessageMap:    make(map[string]Message),
+		PluralFormula: pluralFormula,
 	}
 	for i := 0; i < int(header.MsgIdCount); i++ {
 		if _, err := r.Seek(int64(msgIdStart[i]), 0); err != nil {
@@ -147,16 +158,23 @@ func LoadData(data []byte) (*File, error) {
 				MsgStr: string(msgStrData),
 			}
 			// Is this a context message?
-			if idx := strings.Index(msg.MsgId, eotSeparator); idx != -1 {
+			if idx := strings.Index(msg.MsgId, EotSeparator); idx != -1 {
 				msg.MsgContext, msg.MsgId = msg.MsgId[:idx], msg.MsgId[idx+1:]
 			}
 			// Is this a plural message?
-			if idx := strings.Index(msg.MsgId, nulSeparator); idx != -1 {
+			if idx := strings.Index(msg.MsgId, NulSeparator); idx != -1 {
 				msg.MsgId, msg.MsgIdPlural = msg.MsgId[:idx], msg.MsgId[idx+1:]
-				msg.MsgStrPlural = strings.Split(msg.MsgStr, nulSeparator)
+				msg.MsgStrPlural = strings.Split(msg.MsgStr, NulSeparator)
 				msg.MsgStr = ""
 			}
-			file.MessageTable[msg.MsgId] = msg
+			file.MessageMap[MakeMessageMapKey(msg.MsgContext, msg.MsgId)] = msg
+		}
+	}
+	if file.PluralFormula == nil {
+		if lang := file.MimeHeader["Language"]; lang != "" {
+			file.PluralFormula = plural.Formula(lang)
+		} else {
+			file.PluralFormula = plural.Formula("??")
 		}
 	}
 
@@ -176,18 +194,38 @@ func (f *File) Data(name string) []byte {
 	binary.Write(&buf, binary.LittleEndian, &f.MajorVersion)
 	binary.Write(&buf, binary.LittleEndian, &f.MinorVersion)
 
-	var strCount = uint32(len(f.MessageTable)) + 1
+	var strCount = uint32(len(f.MessageMap)) + 1
 	_ = strCount
 
 	return buf.Bytes()
 }
 
 func (f *File) PGettext(msgctxt, msgid string) string {
-	return msgid
+	return f.PNGettext(msgctxt, msgid, "", 0)
 }
 
 func (f *File) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
-	return msgid
+	n = f.PluralFormula(n)
+	key := MakeMessageMapKey(msgctxt, msgid)
+	if v, ok := f.MessageMap[key]; ok {
+		if msgidPlural != "" {
+			if n >= len(v.MsgStrPlural) {
+				n = len(v.MsgStrPlural) - 1
+			}
+			return v.MsgStrPlural[n]
+		} else {
+			if v.MsgIdPlural != "" {
+				return v.MsgStrPlural[0]
+			} else {
+				return v.MsgStr
+			}
+		}
+	}
+	if msgidPlural != "" && n > 0 {
+		return msgidPlural
+	} else {
+		return msgid
+	}
 }
 
 func (f *File) String() string {
@@ -200,7 +238,7 @@ func (f *File) String() string {
 	}
 	fmt.Fprintf(&buf, "\n")
 
-	for k, v := range f.MessageTable {
+	for k, v := range f.MessageMap {
 		fmt.Fprintf(&buf, `msgid "%s"`+"\n", k)
 		fmt.Fprintf(&buf, `msgstr "%s"`+"\n", v.MsgStr)
 		fmt.Fprintf(&buf, "\n")

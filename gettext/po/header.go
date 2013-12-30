@@ -22,7 +22,7 @@ type Header struct {
 	PORevisionDate          string // PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE
 	LastTranslator          string // Last-Translator: FIRST AUTHOR <EMAIL@ADDRESS>
 	LanguageTeam            string // Language-Team: golang-china
-	Language                string // Language: Chinese
+	Language                string // Language: zh_CN
 	MimeVersion             string // MIME-Version: 1.0
 	ContentType             string // Content-Type: text/plain; charset=UTF-8
 	ContentTransferEncoding string // Content-Transfer-Encoding: 8bit

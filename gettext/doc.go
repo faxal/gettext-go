@@ -5,8 +5,21 @@
 /*
 Package gettext implements GNU's gettext.
 
-See:
+Example:
+	import (
+		"code.google.com/p/gettext-go/gettext"
+	)
 
+	func main() {
+		gettext.SetLocale("zh_CN")
+		gettext.BindTextdomain("app", "local")
+		gettext.Textdomain(app)
+
+		fmt.Println(gettext.Gettext("Hello, world!"))
+		// Output: 你好, 世界!
+	}
+
+See:
 	http://en.wikipedia.org/wiki/Gettext
 	http://www.gnu.org/software/gettext/manual/html_node
 	http://www.gnu.org/software/gettext/manual/html_node/Header-Entry.html

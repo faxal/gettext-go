@@ -26,6 +26,18 @@ type Message struct {
 	MsgStrPlural []string // msgstr[0] translated-string-case-0
 }
 
+type byMessage []Message
+
+func (d byMessage) Len() int {
+	return len(d)
+}
+func (d byMessage) Less(i, j int) bool {
+	return d[i].Comment.StartLine < d[j].Comment.StartLine
+}
+func (d byMessage) Swap(i, j int) {
+	d[i], d[j] = d[j], d[i]
+}
+
 func (p *Message) readPoEntry(r *lineReader) (err error) {
 	*p = Message{}
 	if err = r.skipBlankLine(); err != nil {

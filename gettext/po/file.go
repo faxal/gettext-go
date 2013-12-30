@@ -9,25 +9,29 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+
+	"code.google.com/p/gettext-go/gettext/plural"
 )
 
 // File represents an PO File.
 //
 // See http://www.gnu.org/software/gettext/manual/html_node/
 type File struct {
-	MimeHeader Header
-	Messages   []Message
+	MimeHeader    Header
+	Messages      []Message // discard
+	MessageMap    map[string]Message
+	PluralFormula func(n int) int
 }
 
-func Load(name string) (*File, error) {
+func Load(name string, pluralFormula func(n int) int) (*File, error) {
 	data, err := ioutil.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
-	return LoadData(data)
+	return LoadData(data, pluralFormula)
 }
 
-func LoadData(data []byte) (*File, error) {
+func LoadData(data []byte, pluralFormula func(n int) int) (*File, error) {
 	var file File
 	r := newLineReader(string(data))
 	for {
@@ -44,6 +48,15 @@ func LoadData(data []byte) (*File, error) {
 		}
 		file.Messages = append(file.Messages, entry)
 	}
+	file.PluralFormula = pluralFormula
+	if file.PluralFormula == nil {
+		if lang := file.MimeHeader.Language; lang != "" {
+			file.PluralFormula = plural.Formula(lang)
+		} else {
+			file.PluralFormula = plural.Formula("??")
+		}
+	}
+
 	return &file, nil
 }
 
@@ -56,10 +69,14 @@ func (f *File) Data(name string) []byte {
 }
 
 func (f *File) PGettext(msgctxt, msgid string) string {
-	return msgid
+	return f.PNGettext(msgctxt, msgid, "", 0)
 }
 
 func (f *File) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
+	n = f.PluralFormula(n)
+	for i := 0; i < len(f.Messages); i++ {
+		//
+	}
 	return msgid
 }
 

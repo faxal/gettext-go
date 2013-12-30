@@ -15,7 +15,7 @@ var (
 )
 
 func _TestPoEditPoFile(t *testing.T) {
-	po, err := Load(testPoEditPoFile)
+	po, err := Load(testPoEditPoFile, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

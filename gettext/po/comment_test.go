@@ -16,6 +16,7 @@ func TestPoComment(t *testing.T) {
 		if err != nil {
 			t.Fatalf("%d: %v", i, err)
 		}
+		x.StartLine = 0 // ingore comment line
 		if !reflect.DeepEqual(&x, &testPoComments[i].PoComment) {
 			t.Logf("expect(%d):\n", i)
 			t.Logf("\n%v\n", &testPoComments[i].PoComment)
