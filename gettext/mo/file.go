@@ -47,11 +47,6 @@ type Message struct {
 	MsgStrPlural []string // msgstr[0] translated-string-case-0
 }
 
-type moStrPos struct {
-	Addr uint32
-	Size uint32
-}
-
 // MakeMessageMapKey returns the File.MessageMap key string.
 func MakeMessageMapKey(msgctxt, msgid string) string {
 	if msgctxt != "" {
@@ -205,7 +200,7 @@ func (f *File) Save(name string) error {
 
 // Save returns a mo file format data.
 func (f *File) Data(name string) []byte {
-	panic("TODO")
+	return encodeFile(f)
 }
 
 // PGettext attempt to translate a text string,
