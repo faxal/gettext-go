@@ -8,6 +8,70 @@ import (
 	"testing"
 )
 
-func TestFoo(t *testing.T) {
-	//
+var (
+	testInitCallerName0 string = callerName(1)
+	testInitCallerName1 string
+	testInitCallerName2 string
+)
+
+func init() {
+	testInitCallerName1 = callerName(1)
+}
+
+func init() {
+	testInitCallerName2 = callerName(1)
+}
+
+func TestCallerName(t *testing.T) {
+	var name string
+
+	name = `code.google.com/p/gettext-go/gettext.init`
+	if s := testInitCallerName0; s != name {
+		t.Fatalf("expect = %s, got = %s", name, s)
+	}
+	name = `code.google.com/p/gettext-go/gettext.init`
+	if s := testInitCallerName2; s != name {
+		t.Fatalf("expect = %s, got = %s", name, s)
+	}
+
+	name = `code.google.com/p/gettext-go/gettext.callerName`
+	if s := callerName(0); s != name {
+		t.Fatalf("expect = %s, got = %s", name, s)
+	}
+
+	name = `code.google.com/p/gettext-go/gettext.TestCallerName`
+	if s := callerName(1); s != name {
+		t.Fatalf("expect = %s, got = %s", name, s)
+	}
+
+	name = `testing.tRunner`
+	if s := callerName(2); s != name {
+		t.Fatalf("expect = %s, got = %s", name, s)
+	}
+
+	name = `runtime.goexit`
+	if s := callerName(3); s != name {
+		t.Fatalf("expect = %s, got = %s", name, s)
+	}
+
+	name = ""
+	if s := callerName(4); s != name {
+		t.Fatalf("expect = %s, got = %s", name, s)
+	}
+
+	func() {
+		name = `code.google.com/p/gettext-go/gettext.TestCallerName`
+		if s := callerName(1); s != name {
+			t.Fatalf("expect = %s, got = %s", name, s)
+		}
+	}()
+
+	func() {
+		func() {
+			name = `code.google.com/p/gettext-go/gettext.TestCallerName`
+			if s := callerName(1); s != name {
+				t.Fatalf("expect = %s, got = %s", name, s)
+			}
+		}()
+	}()
 }
