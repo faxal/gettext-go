@@ -8,19 +8,15 @@ package main
 
 import (
 	"fmt"
-	"log"
 
 	"code.google.com/p/gettext-go/gettext"
-	"code.google.com/p/gettext-go/gettext/po"
 )
 
 func main() {
-	poFile, err := po.Load("../testdata/test.po", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("%v", poFile)
+	gettext.SetLocale("zh_CN")
+	gettext.BindTextdomain("hello", "../examples/local")
+	gettext.Textdomain("hello")
 
-	msg := gettext.Gettext("Hello gettext-go")
-	fmt.Printf("msg: %s\n", msg)
+	fmt.Println(gettext.Gettext("Hello, world!"))
+	// Output: 你好, 世界!
 }
