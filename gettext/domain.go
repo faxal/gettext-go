@@ -9,8 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
-
-	"code.google.com/p/gettext-go/gettext/mo"
 )
 
 var dTable = newDomainTable()
@@ -21,7 +19,7 @@ type domainTable struct {
 	domain       string
 	domainPath   map[string]string
 	domainLocals map[string][]string
-	moFileMap    map[string]*mo.File
+	trMap        map[string]*translator
 }
 
 func makeDomainFileKey(domain, locale string) string {
@@ -33,7 +31,7 @@ func newDomainTable() *domainTable {
 		locale:       DefaultLocale,
 		domainPath:   make(map[string]string),
 		domainLocals: make(map[string][]string),
-		moFileMap:    make(map[string]*mo.File),
+		trMap:        make(map[string]*translator),
 	}
 }
 
@@ -53,9 +51,9 @@ func (p *domainTable) Bind(domain, path string) (domains, paths []string, err er
 			return
 		}
 		for i := 0; i < len(files); i++ {
-			if f, err := mo.Load(files[i], nil); err == nil { // ingore error
+			if f, err := newMoTranslator(files[i]); err == nil { // ingore error
 				key := makeDomainFileKey(domain, locals[i])
-				p.moFileMap[key] = f
+				p.trMap[key] = f
 			}
 		}
 		p.domainPath[domain] = path
@@ -73,7 +71,7 @@ func (p *domainTable) Bind(domain, path string) (domains, paths []string, err er
 		}
 		// delete all mo files
 		for _, k := range keys {
-			delete(p.moFileMap, k)
+			delete(p.trMap, k)
 		}
 		delete(p.domainLocals, domain)
 		delete(p.domainPath, domain)
@@ -131,7 +129,7 @@ func (p *domainTable) DPNGettext(domain, msgctxt, msgid, msgidPlural string, n i
 }
 
 func (p *domainTable) gettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
-	if f, ok := p.moFileMap[makeDomainFileKey(domain, p.locale)]; ok {
+	if f, ok := p.trMap[makeDomainFileKey(domain, p.locale)]; ok {
 		return f.PNGettext(msgctxt, msgid, msgidPlural, n)
 	}
 	return msgid

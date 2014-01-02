@@ -16,9 +16,6 @@ Examples:
 			log.Fatal(err)
 		}
 		fmt.Printf("%v", poFile)
-
-		msg := poFile.PGettext("", "Hello gettext-go")
-		fmt.Printf("msg: %s\n", msg)
 	}
 
 The GNU PO file specification is at

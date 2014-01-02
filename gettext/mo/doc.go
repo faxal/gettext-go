@@ -16,9 +16,6 @@ Examples:
 			log.Fatal(err)
 		}
 		fmt.Printf("%v", moFile)
-
-		msg := moFile.PGettext("", "Hello gettext-go")
-		fmt.Printf("msg: %s\n", msg)
 	}
 
 The GNU MO file specification is at

@@ -3,11 +3,3 @@
 // license that can be found in the LICENSE file.
 
 package gettext
-
-import (
-	"testing"
-)
-
-func TestFoo(t *testing.T) {
-	//
-}

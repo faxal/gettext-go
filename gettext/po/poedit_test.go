@@ -15,22 +15,18 @@ var (
 )
 
 func _TestPoEditPoFile(t *testing.T) {
-	po, err := Load(testPoEditPoFile, nil)
+	po, err := Load(testPoEditPoFile)
 	if err != nil {
 		t.Fatal(err)
 	}
 	if !reflect.DeepEqual(&po.MimeHeader, &poEditFile.MimeHeader) {
 		t.Fatalf("expect = %v, got = %v", &poEditFile.MimeHeader, &po.MimeHeader)
 	}
-	if len(po.MessageMap) != len(poEditFile.MessageMap) {
+	if len(po.Messages) != len(poEditFile.Messages) {
 		t.Fatal("size not equal")
 	}
-	for k, v0 := range po.MessageMap {
-		v1, ok := poEditFile.MessageMap[k]
-		if !ok {
-			t.Fatalf("key %q not exists", k)
-		}
-		if !reflect.DeepEqual(&v0, &v1) {
+	for k, v0 := range po.Messages {
+		if v1 := poEditFile.Messages[k]; !reflect.DeepEqual(&v0, &v1) {
 			t.Fatalf("%s: expect = %v, got = %v", k, v1, v0)
 		}
 	}

@@ -10,8 +10,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"strings"
-
-	"code.google.com/p/gettext-go/gettext/plural"
 )
 
 const (
@@ -27,11 +25,10 @@ const (
 //
 // See http://www.gnu.org/software/gettext/manual/html_node/MO-Files.html
 type File struct {
-	MajorVersion  uint16
-	MinorVersion  uint16
-	MimeHeader    map[string]string
-	MessageMap    map[string]Message
-	PluralFormula func(n int) int
+	MajorVersion uint16
+	MinorVersion uint16
+	MimeHeader   map[string]string
+	Messages     []Message
 }
 
 // A PO file is made up of many entries,
@@ -47,25 +44,17 @@ type Message struct {
 	MsgStrPlural []string // msgstr[0] translated-string-case-0
 }
 
-// MakeMessageMapKey returns the File.MessageMap key string.
-func MakeMessageMapKey(msgctxt, msgid string) string {
-	if msgctxt != "" {
-		return msgctxt + EotSeparator + msgid
-	}
-	return msgid
-}
-
 // Load loads a named mo file.
-func Load(name string, pluralFormula func(n int) int) (*File, error) {
+func Load(name string) (*File, error) {
 	data, err := ioutil.ReadFile(name)
 	if err != nil {
 		return nil, err
 	}
-	return LoadData(data, pluralFormula)
+	return LoadData(data)
 }
 
 // LoadData loads mo file format data.
-func LoadData(data []byte, pluralFormula func(n int) int) (*File, error) {
+func LoadData(data []byte) (*File, error) {
 	r := bytes.NewReader(data)
 
 	var magicNumber uint32
@@ -130,11 +119,9 @@ func LoadData(data []byte, pluralFormula func(n int) int) (*File, error) {
 	}
 
 	file := &File{
-		MajorVersion:  header.MajorVersion,
-		MinorVersion:  header.MinorVersion,
-		MimeHeader:    make(map[string]string),
-		MessageMap:    make(map[string]Message),
-		PluralFormula: pluralFormula,
+		MajorVersion: header.MajorVersion,
+		MinorVersion: header.MinorVersion,
+		MimeHeader:   make(map[string]string),
 	}
 	for i := 0; i < int(header.MsgIdCount); i++ {
 		if _, err := r.Seek(int64(msgIdStart[i]), 0); err != nil {
@@ -179,14 +166,7 @@ func LoadData(data []byte, pluralFormula func(n int) int) (*File, error) {
 				msg.MsgStrPlural = strings.Split(msg.MsgStr, NulSeparator)
 				msg.MsgStr = ""
 			}
-			file.MessageMap[MakeMessageMapKey(msg.MsgContext, msg.MsgId)] = msg
-		}
-	}
-	if file.PluralFormula == nil {
-		if lang := file.MimeHeader["Language"]; lang != "" {
-			file.PluralFormula = plural.Formula(lang)
-		} else {
-			file.PluralFormula = plural.Formula("??")
+			file.Messages = append(file.Messages, msg)
 		}
 	}
 
@@ -203,60 +183,6 @@ func (f *File) Data(name string) []byte {
 	return encodeFile(f)
 }
 
-// PGettext attempt to translate a text string,
-// by looking up the translation in current mo file.
-//
-// Examples:
-//	func Foo() {
-//		msg := moFile.PGettext("gettext-go.example", "Hello") // msgctxt is "gettext-go.example"
-//	}
-func (f *File) PGettext(msgctxt, msgid string) string {
-	return f.PNGettext(msgctxt, msgid, "", 0)
-}
-
-// PNGettext attempt to translate a text string,
-// by looking up the translation in current mo file.
-// catalog.
-//
-// Examples:
-//	func Foo() {
-//		msg := moFile.PNGettext("gettext-go.example", "%d people", "%d peoples", 2)
-//	}
-func (f *File) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
-	n = f.PluralFormula(n)
-	if ss := f.findMsgStrPlural(msgctxt, msgid, msgidPlural); len(ss) != 0 {
-		if n >= len(ss) {
-			n = len(ss) - 1
-		}
-		return ss[n]
-	}
-	if msgidPlural != "" && n > 0 {
-		return msgidPlural
-	} else {
-		return msgid
-	}
-}
-
-func (f *File) findMsgStrPlural(msgctxt, msgid, msgidPlural string) []string {
-	key := MakeMessageMapKey(msgctxt, msgid)
-	if v, ok := f.MessageMap[key]; ok {
-		if len(v.MsgIdPlural) != 0 {
-			if len(v.MsgStrPlural) != 0 {
-				return v.MsgStrPlural
-			} else {
-				return nil
-			}
-		} else {
-			if len(v.MsgStr) != 0 {
-				return []string{v.MsgStr}
-			} else {
-				return nil
-			}
-		}
-	}
-	return nil
-}
-
 // String returns the po format file string.
 func (f *File) String() string {
 	var buf bytes.Buffer
@@ -268,7 +194,7 @@ func (f *File) String() string {
 	}
 	fmt.Fprintf(&buf, "\n")
 
-	for k, v := range f.MessageMap {
+	for k, v := range f.Messages {
 		fmt.Fprintf(&buf, `msgid "%s"`+"\n", k)
 		fmt.Fprintf(&buf, `msgstr "%s"`+"\n", v.MsgStr)
 		fmt.Fprintf(&buf, "\n")

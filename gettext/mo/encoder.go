@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"sort"
 	"strings"
 )
 
@@ -38,10 +39,10 @@ func encodeFile(f *File) []byte {
 
 // encode data and init moHeader
 func encodeData(hdr *moHeader, f *File) []byte {
-	var msgList = []Message{mimeHeaderToMessage(f.MimeHeader)}
-	for _, v := range f.MessageMap {
-		msgList = append(msgList, v)
-	}
+	msgList := []Message{mimeHeaderToMessage(f.MimeHeader)}
+	msgList = append(msgList, f.Messages...)
+	sort.Sort(byMessages(msgList))
+
 	var buf bytes.Buffer
 	var msgIdPosList = make([]moStrPos, len(msgList))
 	var msgStrPosList = make([]moStrPos, len(msgList))
