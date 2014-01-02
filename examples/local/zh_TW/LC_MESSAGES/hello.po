@@ -5,34 +5,27 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Test\n"
+"Project-Id-Version: gettext-go-examples-hello\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-12 20:03+0000\n"
-"PO-Revision-Date: 2013-12-02 17:05+0800\n"
+"POT-Creation-Date: 2013-12-12 20:03+0000\n"
+"PO-Revision-Date: 2014-01-01 11:39+0800\n"
 "Last-Translator: chai2010 <chaishushan@gmail.com>\n"
 "Language-Team: chai2010(团队) <chaishushan@gmail.com>\n"
-"Language: zh_CN\n"
+"Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 1.5.7\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-msgid "Title"
-msgstr "Título"
+msgctxt "main.init"
+msgid "Gettext in init."
+msgstr "Init函數中的Gettext."
 
-# test: bad comment
-# test: good comment
-#. test: extracted-comments
-#: src/test.cc:9527
-#, fuzzy
-#| msgctxt ""
-#| "previous-context-1\n"
-#| "previous-context-2"
-#| msgid ""
-#| "previous-untranslated-string\n"
-#| "previous-untranslated-string-2"
-msgid "%d topic"
-msgid_plural "%d topics"
-msgstr[0] "%d tema"
-msgstr[1] "%d temas"
+msgctxt "main.main"
+msgid "Hello, world!"
+msgstr "你好, 世界!"
+
+msgctxt "main.func"
+msgid "Gettext in func."
+msgstr "閉包函數中的Gettext."

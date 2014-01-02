@@ -8,6 +8,12 @@ var (
 	DefaultLocale = getDefaultLocale() // default local is $(LC_MESSAGES) or $(LANG)
 )
 
+func init() {
+	if DefaultLocale != "" {
+		SetLocale(DefaultLocale)
+	}
+}
+
 // SetLocale sets and queries the program's current locale.
 //
 // If the locale is not empty string, set the new local.

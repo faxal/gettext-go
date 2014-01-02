@@ -114,7 +114,7 @@ func (p *Comment) readTranslatorComment(r *lineReader) (err error) {
 }
 
 func (p *Comment) readExtractedComment(r *lineReader) (err error) {
-	const prefix = "#. "
+	const prefix = "#."
 	for {
 		var s string
 		if s, _, err = r.readLine(); err != nil {
@@ -127,13 +127,13 @@ func (p *Comment) readExtractedComment(r *lineReader) (err error) {
 		if p.ExtractedComment != "" {
 			p.ExtractedComment += "\n"
 		}
-		p.ExtractedComment += s[len(prefix):]
+		p.ExtractedComment += strings.TrimSpace(s[len(prefix):])
 	}
 	return nil
 }
 
 func (p *Comment) readReferenceComment(r *lineReader) (err error) {
-	const prefix = "#: "
+	const prefix = "#:"
 	for {
 		var s string
 		if s, _, err = r.readLine(); err != nil {
@@ -159,7 +159,7 @@ func (p *Comment) readReferenceComment(r *lineReader) (err error) {
 }
 
 func (p *Comment) readFlagsComment(r *lineReader) (err error) {
-	const prefix = "#, "
+	const prefix = "#,"
 	for {
 		var s string
 		if s, _, err = r.readLine(); err != nil {
@@ -178,41 +178,46 @@ func (p *Comment) readFlagsComment(r *lineReader) (err error) {
 }
 
 func (p *Comment) readPrevMsgContext(r *lineReader) (err error) {
-	const prefix = "#| msgctxt "
-	for {
-		var s string
-		if s, _, err = r.readLine(); err != nil {
-			return err
-		}
-		if len(s) < len(prefix) || s[:len(prefix)] != prefix {
-			r.unreadLine()
-			return nil
-		}
-		if p.PrevMsgContext != "" {
-			p.PrevMsgContext += "\n"
-		}
-		p.PrevMsgContext += s[len(prefix):]
+	var s string
+	if s, _, err = r.currentLine(); err != nil {
+		return
 	}
-	return nil
+	if !rePrevMsgContextComments.MatchString(s) {
+		return
+	}
+	p.PrevMsgContext, err = p.readString(r)
+	return
 }
 
 func (p *Comment) readPrevMsgId(r *lineReader) (err error) {
-	const prefix = "#| msgid "
-	for {
-		var s string
-		if s, _, err = r.readLine(); err != nil {
-			return err
-		}
-		if len(s) < len(prefix) || s[:len(prefix)] != prefix {
-			r.unreadLine()
-			return nil
-		}
-		if p.PrevMsgId != "" {
-			p.PrevMsgId += "\n"
-		}
-		p.PrevMsgId += s[len(prefix):]
+	var s string
+	if s, _, err = r.currentLine(); err != nil {
+		return
 	}
-	return nil
+	if !rePrevMsgIdComments.MatchString(s) {
+		return
+	}
+	p.PrevMsgId, err = p.readString(r)
+	return
+}
+
+func (p *Comment) readString(r *lineReader) (msg string, err error) {
+	var s string
+	if s, _, err = r.readLine(); err != nil {
+		return
+	}
+	msg += decodePoString(s)
+	for {
+		if s, _, err = r.readLine(); err != nil {
+			return
+		}
+		if !reStringLineComments.MatchString(s) {
+			r.unreadLine()
+			break
+		}
+		msg += decodePoString(s)
+	}
+	return
 }
 
 // GetFuzzy gets the fuzzy flag.
@@ -260,16 +265,12 @@ func (p Comment) String() string {
 		fmt.Fprintf(&buf, "\n")
 	}
 	if p.PrevMsgContext != "" {
-		ss := strings.Split(p.PrevMsgContext, "\n")
-		for i := 0; i < len(ss); i++ {
-			fmt.Fprintf(&buf, "#| msgctxt %s\n", ss[i])
-		}
+		s := encodeCommentPoString(p.PrevMsgContext)
+		fmt.Fprintf(&buf, "#| msgctxt %s\n", s)
 	}
 	if p.PrevMsgId != "" {
-		ss := strings.Split(p.PrevMsgId, "\n")
-		for i := 0; i < len(ss); i++ {
-			fmt.Fprintf(&buf, "#| msgid %s\n", ss[i])
-		}
+		s := encodeCommentPoString(p.PrevMsgId)
+		fmt.Fprintf(&buf, "#| msgid %s\n", s)
 	}
 	return buf.String()
 }

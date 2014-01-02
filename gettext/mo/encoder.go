@@ -40,7 +40,15 @@ func encodeFile(f *File) []byte {
 // encode data and init moHeader
 func encodeData(hdr *moHeader, f *File) []byte {
 	msgList := []Message{mimeHeaderToMessage(f.MimeHeader)}
-	msgList = append(msgList, f.Messages...)
+	for _, v := range f.Messages {
+		if len(v.MsgId) == 0 {
+			continue
+		}
+		if len(v.MsgStr) == 0 && len(v.MsgStrPlural) == 0 {
+			continue
+		}
+		msgList = append(msgList, v)
+	}
 	sort.Sort(byMessages(msgList))
 
 	var buf bytes.Buffer

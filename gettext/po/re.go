@@ -9,12 +9,13 @@ import (
 )
 
 var (
-	reComment                = regexp.MustCompile(`^#`)            // #
-	reExtractedComments      = regexp.MustCompile(`^#\.`)          // #.
-	reReferenceComments      = regexp.MustCompile(`^#:`)           // #:
-	reFlagsComments          = regexp.MustCompile(`^#,`)           // #, fuzzy,c-format
-	rePrevMsgContextComments = regexp.MustCompile(`^#|\s+msgctxt`) // #| msgctxt
-	rePrevMsgIdComments      = regexp.MustCompile(`^#|\s+msgid`)   // #| msgid
+	reComment                = regexp.MustCompile(`^#`)              // #
+	reExtractedComments      = regexp.MustCompile(`^#\.`)            // #.
+	reReferenceComments      = regexp.MustCompile(`^#:`)             // #:
+	reFlagsComments          = regexp.MustCompile(`^#,`)             // #, fuzzy,c-format
+	rePrevMsgContextComments = regexp.MustCompile(`^#\|\s+msgctxt`)  // #| msgctxt
+	rePrevMsgIdComments      = regexp.MustCompile(`^#\|\s+msgid`)    // #| msgid
+	reStringLineComments     = regexp.MustCompile(`^#\|\s+".*"\s*$`) // #| "message"
 
 	reMsgContext   = regexp.MustCompile(`^msgctxt\s+".*"\s*$`)            // msgctxt
 	reMsgId        = regexp.MustCompile(`^msgid\s+".*"\s*$`)              // msgid

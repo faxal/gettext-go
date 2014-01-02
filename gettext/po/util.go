@@ -19,10 +19,28 @@ func decodePoString(text string) string {
 			continue
 		}
 		line := lines[i][left+1 : right]
-		line = strings.Replace(line, `\"`, `"`, -1)
-		line = strings.Replace(line, `\n`, "\n", -1)
-		line = strings.Replace(line, `\\`, `\`, -1)
-		lines[i] = line
+		data := make([]byte, 0, len(line))
+		for i := 0; i < len(line); i++ {
+			if line[i] != '\\' {
+				data = append(data, line[i])
+				continue
+			}
+			if i+1 >= len(line) {
+				break
+			}
+			switch line[i+1] {
+			case 'n': // \\n -> \n
+				data = append(data, '\n')
+				i++
+			case 't': // \\t -> \n
+				data = append(data, '\t')
+				i++
+			case '\\': // \\\ -> ?
+				data = append(data, '\\')
+				i++
+			}
+		}
+		lines[i] = string(data)
 	}
 	return strings.Join(lines, "")
 }
@@ -46,11 +64,47 @@ func encodePoString(text string) string {
 				buf.WriteString(`\"`)
 			case '\n':
 				buf.WriteString(`\n`)
+			case '\t':
+				buf.WriteString(`\t`)
 			default:
 				buf.WriteRune(r)
 			}
 		}
 		buf.WriteString(`\n"` + "\n")
+	}
+	return buf.String()
+}
+
+func encodeCommentPoString(text string) string {
+	var buf bytes.Buffer
+	lines := strings.Split(text, "\n")
+	if len(lines) > 1 {
+		buf.WriteString(`""` + "\n")
+	}
+	for i := 0; i < len(lines); i++ {
+		if len(lines) > 0 {
+			buf.WriteString("#| ")
+		}
+		buf.WriteRune('"')
+		for _, r := range lines[i] {
+			switch r {
+			case '\\':
+				buf.WriteString(`\\`)
+			case '"':
+				buf.WriteString(`\"`)
+			case '\n':
+				buf.WriteString(`\n`)
+			case '\t':
+				buf.WriteString(`\t`)
+			default:
+				buf.WriteRune(r)
+			}
+		}
+		if i < len(lines)-1 {
+			buf.WriteString(`\n"` + "\n")
+		} else {
+			buf.WriteString(`"`)
+		}
 	}
 	return buf.String()
 }

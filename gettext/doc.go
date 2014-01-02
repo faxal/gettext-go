@@ -5,7 +5,7 @@
 /*
 Package gettext  implements a basic GNU's gettext library.
 
-Example:
+Examples:
 	import (
 		"code.google.com/p/gettext-go/gettext"
 	)

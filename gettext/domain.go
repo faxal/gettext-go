@@ -129,6 +129,9 @@ func (p *domainTable) DPNGettext(domain, msgctxt, msgid, msgidPlural string, n i
 }
 
 func (p *domainTable) gettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
+	if p.locale == "" {
+		return msgid
+	}
 	if f, ok := p.trMap[makeDomainFileKey(domain, p.locale)]; ok {
 		return f.PNGettext(msgctxt, msgid, msgidPlural, n)
 	}
