@@ -31,19 +31,6 @@ type File struct {
 	Messages     []Message
 }
 
-// A PO file is made up of many entries,
-// each entry holding the relation between an original untranslated string
-// and its corresponding translation.
-//
-// See http://www.gnu.org/software/gettext/manual/html_node/PO-Files.html
-type Message struct {
-	MsgContext   string   // msgctxt context
-	MsgId        string   // msgid untranslated-string
-	MsgIdPlural  string   // msgid_plural untranslated-string-plural
-	MsgStr       string   // msgstr translated-string
-	MsgStrPlural []string // msgstr[0] translated-string-case-0
-}
-
 // Load loads a named mo file.
 func Load(name string) (*File, error) {
 	data, err := ioutil.ReadFile(name)
