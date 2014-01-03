@@ -11,9 +11,7 @@ import (
 	"sync"
 )
 
-var dTable = newDomainTable()
-
-type domainTable struct {
+type domainManager struct {
 	mutex        sync.Mutex
 	locale       string
 	domain       string
@@ -22,12 +20,8 @@ type domainTable struct {
 	trMap        map[string]*translator
 }
 
-func makeDomainFileKey(domain, locale string) string {
-	return domain + "_" + locale
-}
-
-func newDomainTable() *domainTable {
-	return &domainTable{
+func newDomainManager() *domainManager {
+	return &domainManager{
 		locale:       DefaultLocale,
 		domainPath:   make(map[string]string),
 		domainLocals: make(map[string][]string),
@@ -35,7 +29,7 @@ func newDomainTable() *domainTable {
 	}
 }
 
-func (p *domainTable) Bind(domain, path string) (domains, paths []string, err error) {
+func (p *domainManager) Bind(domain, path string) (domains, paths []string, err error) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
@@ -52,7 +46,7 @@ func (p *domainTable) Bind(domain, path string) (domains, paths []string, err er
 		}
 		for i := 0; i < len(files); i++ {
 			if f, err := newMoTranslator(files[i]); err == nil { // ingore error
-				key := makeDomainFileKey(domain, locals[i])
+				key := p.makeTrMapKey(domain, locals[i])
 				p.trMap[key] = f
 			}
 		}
@@ -66,7 +60,7 @@ func (p *domainTable) Bind(domain, path string) (domains, paths []string, err er
 		// enum locals
 		var keys []string
 		for _, v := range p.domainLocals[domain] {
-			key := makeDomainFileKey(domain, v)
+			key := p.makeTrMapKey(domain, v)
 			keys = append(keys, key)
 		}
 		// delete all mo files
@@ -85,26 +79,26 @@ func (p *domainTable) Bind(domain, path string) (domains, paths []string, err er
 	return
 }
 
-func (p *domainTable) GetLocale() string {
+func (p *domainManager) GetLocale() string {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	return p.locale
 }
 
-func (p *domainTable) SetLocale(locale string) error {
+func (p *domainManager) SetLocale(locale string) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	p.locale = locale
 	return nil
 }
 
-func (p *domainTable) GetDomain() string {
+func (p *domainManager) GetDomain() string {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	return p.domain
 }
 
-func (p *domainTable) SetDomain(domain string) error {
+func (p *domainManager) SetDomain(domain string) error {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	if domain != "" {
@@ -116,29 +110,29 @@ func (p *domainTable) SetDomain(domain string) error {
 	return nil
 }
 
-func (p *domainTable) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
+func (p *domainManager) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	return p.gettext(p.domain, msgctxt, msgid, msgidPlural, n)
 }
 
-func (p *domainTable) DPNGettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
+func (p *domainManager) DPNGettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 	return p.gettext(p.domain, msgctxt, msgid, msgidPlural, n)
 }
 
-func (p *domainTable) gettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
+func (p *domainManager) gettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
 	if p.locale == "" {
 		return msgid
 	}
-	if f, ok := p.trMap[makeDomainFileKey(domain, p.locale)]; ok {
+	if f, ok := p.trMap[p.makeTrMapKey(domain, p.locale)]; ok {
 		return f.PNGettext(msgctxt, msgid, msgidPlural, n)
 	}
 	return msgid
 }
 
-func (p *domainTable) globDomainLocales(domain, path string) (locals, files []string, err error) {
+func (p *domainManager) globDomainLocales(domain, path string) (locals, files []string, err error) {
 	pattern := filepath.Join(path, "*", "LC_MESSAGES", domain+".mo")
 	if files, err = filepath.Glob(pattern); err != nil {
 		return
@@ -150,4 +144,8 @@ func (p *domainTable) globDomainLocales(domain, path string) (locals, files []st
 		locals = append(locals, local)
 	}
 	return
+}
+
+func (p *domainManager) makeTrMapKey(domain, locale string) string {
+	return domain + "_" + locale
 }

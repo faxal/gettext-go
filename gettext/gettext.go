@@ -5,14 +5,12 @@
 package gettext
 
 var (
-	DefaultLocale = getDefaultLocale() // default local is $(LC_MESSAGES) or $(LANG)
+	defaultManager = newDomainManager()
 )
 
-func init() {
-	if DefaultLocale != "" {
-		SetLocale(DefaultLocale)
-	}
-}
+var (
+	DefaultLocale = getDefaultLocale() // use $(LC_MESSAGES) or $(LANG)
+)
 
 // SetLocale sets and queries the program's current locale.
 //
@@ -28,11 +26,11 @@ func init() {
 //	SetLocale("")      // get locale: return zh_CN
 func SetLocale(locale string) (string, error) {
 	if locale != "" {
-		if err := dTable.SetLocale(locale); err != nil {
+		if err := defaultManager.SetLocale(locale); err != nil {
 			return "", err
 		}
 	}
-	return dTable.GetLocale(), nil
+	return defaultManager.GetLocale(), nil
 }
 
 // BindTextdomain sets and queries program's domains.
@@ -54,7 +52,7 @@ func SetLocale(locale string) (string, error) {
 //	BindTextdomain("poedit", "")      // delete "poedit" domain
 //	BindTextdomain("", "")            // return all domains
 func BindTextdomain(domain, path string) (domains, paths []string, err error) {
-	return dTable.Bind(domain, path)
+	return defaultManager.Bind(domain, path)
 }
 
 // Textdomain sets and retrieves the current message domain.
@@ -70,11 +68,11 @@ func BindTextdomain(domain, path string) (domains, paths []string, err error) {
 //	Textdomain("")       // get domain: return poedit
 func Textdomain(domain string) (string, error) {
 	if domain != "" {
-		if err := dTable.SetDomain(domain); err != nil {
+		if err := defaultManager.SetDomain(domain); err != nil {
 			return "", err
 		}
 	}
-	return dTable.GetDomain(), nil
+	return defaultManager.GetDomain(), nil
 }
 
 // Gettext attempt to translate a text string into the user's native language,
@@ -124,7 +122,7 @@ func PGettext(msgctxt, msgid string) string {
 //		msg := gettext.PNGettext("gettext-go.example", "%d people", "%d peoples", 2)
 //	}
 func PNGettext(msgctxt, msgid, msgidPlural string, n int) string {
-	return dTable.PNGettext(msgctxt, msgid, msgidPlural, n)
+	return defaultManager.PNGettext(msgctxt, msgid, msgidPlural, n)
 }
 
 // DGettext like Gettext(), but looking up the message in the specified domain.
@@ -164,5 +162,5 @@ func DPGettext(domain, msgctxt, msgid string) string {
 //		msg := gettext.DPNGettext("poedit", "gettext-go.example", "%d people", "%d peoples", 2)
 //	}
 func DPNGettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
-	return dTable.DPNGettext(domain, msgctxt, msgid, msgidPlural, n)
+	return defaultManager.DPNGettext(domain, msgctxt, msgid, msgidPlural, n)
 }

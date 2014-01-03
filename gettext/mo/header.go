@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package po
+package mo
 
 import (
 	"bytes"
@@ -15,7 +15,6 @@ import (
 //
 // See http://www.gnu.org/software/gettext/manual/html_node/Header-Entry.html#Header-Entry
 type Header struct {
-	Comment                        // Header Comments
 	ProjectIdVersion        string // Project-Id-Version: PACKAGE VERSION
 	ReportMsgidBugsTo       string // Report-Msgid-Bugs-To: FIRST AUTHOR <EMAIL@ADDRESS>
 	POTCreationDate         string // POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE
@@ -31,7 +30,7 @@ type Header struct {
 	UnknowFields            map[string]string
 }
 
-func (p *Header) parseHeader(msg *Message) {
+func (p *Header) fromMessage(msg *Message) {
 	if msg.MsgId != "" || msg.MsgStr == "" {
 		return
 	}
@@ -75,13 +74,17 @@ func (p *Header) parseHeader(msg *Message) {
 			p.UnknowFields[key] = val
 		}
 	}
-	p.Comment = msg.Comment
+}
+
+func (p *Header) toMessage() Message {
+	return Message{
+		MsgStr: p.String(),
+	}
 }
 
 // String returns the po format header string.
 func (p Header) String() string {
 	var buf bytes.Buffer
-	fmt.Fprintf(&buf, "%s", p.Comment.String())
 	fmt.Fprintf(&buf, `msgid ""`+"\n")
 	fmt.Fprintf(&buf, `msgstr ""`+"\n")
 	fmt.Fprintf(&buf, `"%s: %s\n"`+"\n", "Project-Id-Version", p.ProjectIdVersion)

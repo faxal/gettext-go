@@ -11,15 +11,15 @@ import (
 
 func getDefaultLocale() string {
 	if v := os.Getenv("LC_MESSAGES"); v != "" {
-		return parseDefaultLocale(v)
+		return simplifiedLocale(v)
 	}
 	if v := os.Getenv("LANG"); v != "" {
-		return parseDefaultLocale(v)
+		return simplifiedLocale(v)
 	}
 	return ""
 }
 
-func parseDefaultLocale(lang string) string {
+func simplifiedLocale(lang string) string {
 	// en_US/en_US.UTF-8/zh_CN/zh_TW/el_GR@euro/...
 	if idx := strings.Index(lang, ":"); idx != -1 {
 		lang = lang[:idx]

@@ -27,7 +27,7 @@ const (
 type File struct {
 	MajorVersion uint16
 	MinorVersion uint16
-	MimeHeader   map[string]string
+	MimeHeader   Header
 	Messages     []Message
 }
 
@@ -121,7 +121,6 @@ func LoadData(data []byte) (*File, error) {
 	file := &File{
 		MajorVersion: header.MajorVersion,
 		MinorVersion: header.MinorVersion,
-		MimeHeader:   make(map[string]string),
 	}
 	for i := 0; i < int(header.MsgIdCount); i++ {
 		if _, err := r.Seek(int64(msgIdStart[i]), 0); err != nil {
@@ -141,16 +140,11 @@ func LoadData(data []byte) (*File, error) {
 		}
 
 		if len(msgIdData) == 0 {
-			ss := strings.Split(string(msgStrData), "\n")
-			for i := 0; i < len(ss); i++ {
-				idx := strings.Index(ss[i], ":")
-				if idx < 0 {
-					continue
-				}
-				key := strings.TrimSpace(ss[i][:idx])
-				val := strings.TrimSpace(ss[i][idx+1:])
-				file.MimeHeader[key] = val
+			var msg = Message{
+				MsgId:  string(msgIdData),
+				MsgStr: string(msgStrData),
 			}
+			file.MimeHeader.fromMessage(&msg)
 		} else {
 			var msg = Message{
 				MsgId:  string(msgIdData),
@@ -187,11 +181,7 @@ func (f *File) Data(name string) []byte {
 func (f *File) String() string {
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "# version: %d.%d\n", f.MajorVersion, f.MinorVersion)
-	fmt.Fprintf(&buf, `msgid ""`+"\n")
-	fmt.Fprintf(&buf, `msgstr ""`+"\n")
-	for k, v := range f.MimeHeader {
-		fmt.Fprintf(&buf, `"%s: %s\n"`+"\n", k, v)
-	}
+	fmt.Fprintf(&buf, "%s\n", f.MimeHeader.String())
 	fmt.Fprintf(&buf, "\n")
 
 	for k, v := range f.Messages {

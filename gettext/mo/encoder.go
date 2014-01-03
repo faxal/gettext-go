@@ -7,7 +7,6 @@ package mo
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"sort"
 	"strings"
 )
@@ -39,7 +38,7 @@ func encodeFile(f *File) []byte {
 
 // encode data and init moHeader
 func encodeData(hdr *moHeader, f *File) []byte {
-	msgList := []Message{mimeHeaderToMessage(f.MimeHeader)}
+	msgList := []Message{f.MimeHeader.toMessage()}
 	for _, v := range f.Messages {
 		if len(v.MsgId) == 0 {
 			continue
@@ -101,16 +100,6 @@ func encodeMsgStr(v Message) string {
 		return strings.Join(v.MsgStrPlural, NulSeparator)
 	}
 	return v.MsgStr
-}
-
-func mimeHeaderToMessage(mimeHeader map[string]string) Message {
-	var buf bytes.Buffer
-	for k, v := range mimeHeader {
-		fmt.Fprintf(&buf, "%s: %s\n", k, v)
-	}
-	return Message{
-		MsgStr: buf.String(),
-	}
 }
 
 type byMessages []Message

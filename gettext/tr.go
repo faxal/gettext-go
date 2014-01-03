@@ -26,7 +26,7 @@ func newMoTranslator(name string) (*translator, error) {
 	for _, v := range f.Messages {
 		tr.MessageMap[tr.makeMapKey(v.MsgContext, v.MsgId)] = v
 	}
-	if lang := f.MimeHeader["Language"]; lang != "" {
+	if lang := f.MimeHeader.Language; lang != "" {
 		tr.PluralFormula = plural.Formula(lang)
 	} else {
 		tr.PluralFormula = plural.Formula("??")
