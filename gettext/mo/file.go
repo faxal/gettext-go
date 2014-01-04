@@ -172,7 +172,7 @@ func (f *File) Save(name string) error {
 }
 
 // Save returns a mo file format data.
-func (f *File) Data(name string) []byte {
+func (f *File) Data() []byte {
 	return encodeFile(f)
 }
 
