@@ -29,7 +29,7 @@ type moStrPos struct {
 
 func encodeFile(f *File) []byte {
 	hdr := &moHeader{
-		MagicNumber: moMagicLittleEndian,
+		MagicNumber: MoMagicLittleEndian,
 	}
 	data := encodeData(hdr, f)
 	data = append(encodeHeader(hdr), data...)
@@ -56,19 +56,19 @@ func encodeData(hdr *moHeader, f *File) []byte {
 	for i, v := range msgList {
 		// write msgid
 		msgId := encodeMsgId(v)
-		msgIdPosList[i].Addr = uint32(buf.Len() + moHeaderSize)
+		msgIdPosList[i].Addr = uint32(buf.Len() + MoHeaderSize)
 		msgIdPosList[i].Size = uint32(len(msgId))
 		buf.WriteString(msgId)
 		// write msgstr
 		msgStr := encodeMsgStr(v)
-		msgStrPosList[i].Addr = uint32(buf.Len() + moHeaderSize)
+		msgStrPosList[i].Addr = uint32(buf.Len() + MoHeaderSize)
 		msgStrPosList[i].Size = uint32(len(msgStr))
 		buf.WriteString(msgStr)
 	}
 
-	hdr.MsgIdOffset = uint32(buf.Len() + moHeaderSize)
+	hdr.MsgIdOffset = uint32(buf.Len() + MoHeaderSize)
 	binary.Write(&buf, binary.LittleEndian, msgIdPosList)
-	hdr.MsgStrOffset = uint32(buf.Len() + moHeaderSize)
+	hdr.MsgStrOffset = uint32(buf.Len() + MoHeaderSize)
 	binary.Write(&buf, binary.LittleEndian, msgStrPosList)
 
 	hdr.MsgIdCount = uint32(len(msgList))

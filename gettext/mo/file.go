@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	moHeaderSize        = 28
-	moMagicLittleEndian = 0x950412de
-	moMagicBigEndian    = 0xde120495
+	MoHeaderSize        = 28
+	MoMagicLittleEndian = 0x950412de
+	MoMagicBigEndian    = 0xde120495
 
 	EotSeparator = "\x04" // msgctxt and msgid separator
 	NulSeparator = "\x00" // msgid and msgstr separator
@@ -25,8 +25,14 @@ const (
 //
 // See http://www.gnu.org/software/gettext/manual/html_node/MO-Files.html
 type File struct {
+	MagicNumber  uint32
 	MajorVersion uint16
 	MinorVersion uint16
+	MsgIdCount   uint32
+	MsgIdOffset  uint32
+	MsgStrOffset uint32
+	HashSize     uint32
+	HashOffset   uint32
 	MimeHeader   Header
 	Messages     []Message
 }
@@ -50,9 +56,9 @@ func LoadData(data []byte) (*File, error) {
 	}
 	var bo binary.ByteOrder
 	switch magicNumber {
-	case moMagicLittleEndian:
+	case MoMagicLittleEndian:
 		bo = binary.LittleEndian
-	case moMagicBigEndian:
+	case MoMagicBigEndian:
 		bo = binary.BigEndian
 	default:
 		return nil, fmt.Errorf("gettext: %v", "invalid magic number")
@@ -106,8 +112,14 @@ func LoadData(data []byte) (*File, error) {
 	}
 
 	file := &File{
+		MagicNumber:  magicNumber,
 		MajorVersion: header.MajorVersion,
 		MinorVersion: header.MinorVersion,
+		MsgIdCount:   header.MsgIdCount,
+		MsgIdOffset:  header.MsgIdOffset,
+		MsgStrOffset: header.MsgStrOffset,
+		HashSize:     header.HashSize,
+		HashOffset:   header.HashOffset,
 	}
 	for i := 0; i < int(header.MsgIdCount); i++ {
 		if _, err := r.Seek(int64(msgIdStart[i]), 0); err != nil {
