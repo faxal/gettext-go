@@ -35,14 +35,16 @@ func TestPoMoFiles(t *testing.T) {
 	for i := 0; i < len(testPoMoFiles); i++ {
 		poName := testPoMoFiles[i].poFile
 		moName := testPoMoFiles[i].moFile
-		po, err := newPoTranslator(testDataDir + poName)
+		po, err := newPoTranslator(testDataDir+poName, nil)
 		if err != nil {
 			t.Fatalf("%s: %v", poName, err)
 		}
-		mo, err := newMoTranslator(testDataDir + moName)
+		mo, err := newMoTranslator(testDataDir+moName, nil)
 		if err != nil {
 			t.Fatalf("%s: %v", poName, err)
 		}
+		// if no translate, the mo will drop the message.
+		// so len(mo) may less than len(po).
 		if a, b := len(po.MessageMap), len(mo.MessageMap); a != b {
 			t.Logf("%s: %v, %d != %d", poName, "size not equal", a, b)
 		}

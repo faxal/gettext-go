@@ -23,8 +23,8 @@ type moHeader struct {
 }
 
 type moStrPos struct {
+	Size uint32 // must keep fields order
 	Addr uint32
-	Size uint32
 }
 
 func encodeFile(f *File) []byte {

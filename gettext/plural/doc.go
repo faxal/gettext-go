@@ -13,7 +13,7 @@ Examples:
 	func main() {
 		enFormula := plural.Formula("en_US")
 		xxFormula := plural.Formula("zh_CN")
-	
+
 		fmt.Printf("%s: %d\n", "en", enFormula(0))
 		fmt.Printf("%s: %d\n", "en", enFormula(1))
 		fmt.Printf("%s: %d\n", "en", enFormula(2))

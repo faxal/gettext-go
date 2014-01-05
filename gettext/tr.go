@@ -15,8 +15,16 @@ type translator struct {
 	PluralFormula func(n int) int
 }
 
-func newMoTranslator(name string) (*translator, error) {
-	f, err := mo.Load(name)
+func newMoTranslator(name string, data []byte) (*translator, error) {
+	var (
+		f   *mo.File
+		err error
+	)
+	if len(data) != 0 {
+		f, err = mo.LoadData(data)
+	} else {
+		f, err = mo.Load(name)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -34,8 +42,16 @@ func newMoTranslator(name string) (*translator, error) {
 	return tr, nil
 }
 
-func newPoTranslator(name string) (*translator, error) {
-	f, err := po.Load(name)
+func newPoTranslator(name string, data []byte) (*translator, error) {
+	var (
+		f   *po.File
+		err error
+	)
+	if len(data) != 0 {
+		f, err = po.LoadData(data)
+	} else {
+		f, err = po.Load(name)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -69,14 +85,14 @@ func (p *translator) PNGettext(msgctxt, msgid, msgidPlural string, n int) string
 		if n >= len(ss) {
 			n = len(ss) - 1
 		}
-		return ss[n]
+		if ss[n] != "" {
+			return ss[n]
+		}
 	}
 	if msgidPlural != "" && n > 0 {
 		return msgidPlural
-	} else {
-		return msgid
 	}
-	return ""
+	return msgid
 }
 
 func (p *translator) findMsgStrPlural(msgctxt, msgid, msgidPlural string) []string {

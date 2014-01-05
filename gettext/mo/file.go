@@ -168,7 +168,7 @@ func LoadData(data []byte) (*File, error) {
 
 // Save saves a mo file.
 func (f *File) Save(name string) error {
-	return ioutil.WriteFile(name, f.Data(name), 0666)
+	return ioutil.WriteFile(name, f.Data(), 0666)
 }
 
 // Save returns a mo file format data.

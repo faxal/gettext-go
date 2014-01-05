@@ -6,8 +6,7 @@ package gettext
 
 import (
 	"fmt"
-	"path/filepath"
-	"strings"
+	"io/ioutil"
 	"sync"
 )
 
@@ -39,15 +38,22 @@ func (p *domainManager) Bind(domain, path string) (domains, paths []string, err 
 			err = fmt.Errorf("gettext: domain already exists!")
 			return
 		}
-		var locals, files []string
-		locals, files, err = p.globDomainLocales(domain, path)
-		if err != nil {
+		var locals []string
+		if locals, err = p.globPathLocales(path); err != nil {
 			return
 		}
-		for i := 0; i < len(files); i++ {
-			if f, err := newMoTranslator(files[i]); err == nil { // ingore error
+		for i := 0; i < len(locals); i++ {
+			moName := p.getLocalFileName(domain, path, locals[i], ".mo")
+			if f, err := newMoTranslator(moName, nil); err == nil { // ingore error
 				key := p.makeTrMapKey(domain, locals[i])
 				p.trMap[key] = f
+				continue
+			}
+			poName := p.getLocalFileName(domain, path, locals[i], ".po")
+			if f, err := newPoTranslator(poName, nil); err == nil { // ingore error
+				key := p.makeTrMapKey(domain, locals[i])
+				p.trMap[key] = f
+				continue
 			}
 		}
 		p.domainPath[domain] = path
@@ -132,18 +138,21 @@ func (p *domainManager) gettext(domain, msgctxt, msgid, msgidPlural string, n in
 	return msgid
 }
 
-func (p *domainManager) globDomainLocales(domain, path string) (locals, files []string, err error) {
-	pattern := filepath.Join(path, "*", "LC_MESSAGES", domain+".mo")
-	if files, err = filepath.Glob(pattern); err != nil {
+func (p *domainManager) globPathLocales(path string) (locals []string, err error) {
+	list, err := ioutil.ReadDir(path)
+	if err != nil {
 		return
 	}
-	for i := 0; i < len(files); i++ {
-		local := filepath.ToSlash(files[i])
-		local = local[:strings.Index(local, "/LC_MESSAGES/"+domain+".mo")]
-		local = local[strings.LastIndex(local, "/")+1:]
-		locals = append(locals, local)
+	for _, dir := range list {
+		if dir.IsDir() {
+			locals = append(locals, dir.Name())
+		}
 	}
 	return
+}
+
+func (p *domainManager) getLocalFileName(domain, path, local, ext string) string {
+	return fmt.Sprintf("%s/%s/LC_MESSAGES/%s%s", path, local, domain, ext)
 }
 
 func (p *domainManager) makeTrMapKey(domain, locale string) string {

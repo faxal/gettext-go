@@ -13,7 +13,7 @@ var FormsTable = []struct {
 	Language string
 	Value    string
 }{
-	{"??", "Unknown", "nplurals=n; plural=n-1;"},
+	{"??", "Unknown", "nplurals=1; plural=0;"},
 	{"ja", "Japanese", "nplurals=1; plural=0;"},
 	{"vi", "Vietnamese", "nplurals=1; plural=0;"},
 	{"ko", "Korean", "nplurals=1; plural=0;"},
