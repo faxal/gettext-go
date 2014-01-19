@@ -15,6 +15,7 @@ type domainManager struct {
 	locale       string
 	domain       string
 	domainPath   map[string]string
+	domainData   map[string][]byte
 	domainLocals map[string][]string
 	trMap        map[string]*translator
 }
@@ -23,12 +24,13 @@ func newDomainManager() *domainManager {
 	return &domainManager{
 		locale:       DefaultLocale,
 		domainPath:   make(map[string]string),
+		domainData:   make(map[string][]byte),
 		domainLocals: make(map[string][]string),
 		trMap:        make(map[string]*translator),
 	}
 }
 
-func (p *domainManager) Bind(domain, path string) (domains, paths []string, err error) {
+func (p *domainManager) Bind(domain, path string, data []byte) (domains, paths []string, err error) {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
 
@@ -57,6 +59,7 @@ func (p *domainManager) Bind(domain, path string) (domains, paths []string, err 
 			}
 		}
 		p.domainPath[domain] = path
+		p.domainData[domain] = data
 		p.domainLocals[domain] = locals
 	case domain != "" && path == "": // delete domain
 		if _, ok := p.domainPath[domain]; !ok {
@@ -114,6 +117,10 @@ func (p *domainManager) SetDomain(domain string) error {
 	}
 	p.domain = domain
 	return nil
+}
+
+func (p *domainManager) Getdata(path string) []byte {
+	panic("TODO")
 }
 
 func (p *domainManager) PNGettext(msgctxt, msgid, msgidPlural string, n int) string {

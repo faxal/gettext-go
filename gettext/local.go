@@ -16,7 +16,7 @@ func getDefaultLocale() string {
 	if v := os.Getenv("LANG"); v != "" {
 		return simplifiedLocale(v)
 	}
-	return ""
+	return "default"
 }
 
 func simplifiedLocale(lang string) string {

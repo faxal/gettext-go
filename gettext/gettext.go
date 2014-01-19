@@ -9,7 +9,7 @@ var (
 )
 
 var (
-	DefaultLocale = getDefaultLocale() // use $(LC_MESSAGES) or $(LANG)
+	DefaultLocale = getDefaultLocale() // use $(LC_MESSAGES) or $(LANG) or "default"
 )
 
 // SetLocale sets and queries the program's current locale.
@@ -47,12 +47,17 @@ func SetLocale(locale string) (string, error) {
 // Returns is the all bind domains.
 //
 // Examples:
-//	BindTextdomain("poedit", "local") // bind "poedit" domain
-//	BindTextdomain("", "")            // return all domains
-//	BindTextdomain("poedit", "")      // delete "poedit" domain
-//	BindTextdomain("", "")            // return all domains
-func BindTextdomain(domain, path string) (domains, paths []string, err error) {
-	return defaultManager.Bind(domain, path)
+//	BindTextdomain("poedit", "local", nil) // bind "poedit" domain
+//	BindTextdomain("", "", nil)            // return all domains
+//	BindTextdomain("poedit", "", nil)      // delete "poedit" domain
+//	BindTextdomain("", "", nil)            // return all domains
+//
+// Use zip file:
+//	BindTextdomain("poedit", "local.zip", nil)     // bind "poedit" domain
+//	BindTextdomain("poedit", "local.zip", zipData) // bind "poedit" domain
+//
+func BindTextdomain(domain, path string, data []byte) (domains, paths []string, err error) {
+	return defaultManager.Bind(domain, path, data)
 }
 
 // Textdomain sets and retrieves the current message domain.
@@ -86,6 +91,19 @@ func Textdomain(domain string) (string, error) {
 //	}
 func Gettext(msgid string) string {
 	return PGettext(callerName(2), msgid)
+}
+
+// Getdata attempt to translate a resource file into the user's native language,
+// by looking up the translation in a message catalog.
+//
+// It use the caller's function name as the msgctxt.
+//
+// Examples:
+//	func Foo() {
+//		icon := gettext.Getdata("favicon.ico")
+//	}
+func Getdata(path string) []byte {
+	return defaultManager.Getdata(path)
 }
 
 // NGettext attempt to translate a text string into the user's native language,
