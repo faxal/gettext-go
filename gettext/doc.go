@@ -12,7 +12,7 @@ Examples:
 
 	func main() {
 		gettext.SetLocale("zh_CN")
-		gettext.BindTextdomain("hello", "local")
+		gettext.BindTextdomain("hello", "local", nil)
 		gettext.Textdomain("hello")
 
 		fmt.Println(gettext.Gettext("Hello, world!"))

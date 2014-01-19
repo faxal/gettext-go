@@ -14,7 +14,7 @@ import (
 
 func init() {
 	// bind app domain
-	gettext.BindTextdomain("hello", "local")
+	gettext.BindTextdomain("hello", "local", nil)
 	gettext.Textdomain("hello")
 
 	// $(LC_MESSAGES) or $(LANG) or empty
