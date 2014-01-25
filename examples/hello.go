@@ -66,4 +66,18 @@ func main() {
 		// 來自"Hi"包的問候: 你好, 世界!
 		// 來自"Hi"包的問候: 你好, 世界!
 	}()
+
+	fmt.Println()
+
+	// translate resource
+	gettext.SetLocale("zh_CN")
+	fmt.Println("poems(simple chinese):")
+	fmt.Println(string(gettext.Getdata("poems.txt")))
+	gettext.SetLocale("zh_TW")
+	fmt.Println("poems(traditional chinese):")
+	fmt.Println(string(gettext.Getdata("poems.txt")))
+	gettext.SetLocale("??")
+	fmt.Println("poems(default is english):")
+	fmt.Println(string(gettext.Getdata("poems.txt")))
+	// Output: ...
 }

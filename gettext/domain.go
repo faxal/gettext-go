@@ -82,7 +82,7 @@ func (p *domainManager) DPNGettext(domain, msgctxt, msgid, msgidPlural string, n
 }
 
 func (p *domainManager) gettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
-	if p.locale == "" {
+	if p.locale == "" || p.domain == "" {
 		return msgid
 	}
 	if _, ok := p.domainMap[domain]; !ok {
@@ -95,7 +95,7 @@ func (p *domainManager) gettext(domain, msgctxt, msgid, msgidPlural string, n in
 }
 
 func (p *domainManager) getdata(domain, name string) []byte {
-	if p.locale == "" {
+	if p.locale == "" || p.domain == "" {
 		return nil
 	}
 	if _, ok := p.domainMap[domain]; !ok {
@@ -104,6 +104,11 @@ func (p *domainManager) getdata(domain, name string) []byte {
 	if fs, ok := p.domainMap[domain]; ok {
 		if data, err := fs.LoadResourceFile(domain, p.locale, name); err == nil {
 			return data
+		}
+		if p.locale != "default" {
+			if data, err := fs.LoadResourceFile(domain, "default", name); err == nil {
+				return data
+			}
 		}
 	}
 	return nil

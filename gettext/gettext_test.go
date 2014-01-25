@@ -97,6 +97,48 @@ func testGetdata(t *testing.T, hasTransle bool) {
 	}
 }
 
+func BenchmarkGettext(b *testing.B) {
+	SetLocale("zh_CN")
+	BindTextdomain("hello", "../examples/local", nil)
+	Textdomain("hello")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		PGettext(testTexts[0].ctx, testTexts[0].src)
+	}
+}
+func BenchmarkGettext_Zip(b *testing.B) {
+	SetLocale("zh_CN")
+	BindTextdomain("hello", "../examples/local.zip", nil)
+	Textdomain("hello")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		PGettext(testTexts[0].ctx, testTexts[0].src)
+	}
+}
+
+func BenchmarkGetdata(b *testing.B) {
+	SetLocale("zh_CN")
+	BindTextdomain("hello", "../examples/local", nil)
+	Textdomain("hello")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		Getdata(testResources[0].path)
+	}
+}
+func BenchmarkGetdata_Zip(b *testing.B) {
+	SetLocale("zh_CN")
+	BindTextdomain("hello", "../examples/local.zip", nil)
+	Textdomain("hello")
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		Getdata(testResources[0].path)
+	}
+}
+
 var testTexts = []struct {
 	lang string
 	ctx  string
