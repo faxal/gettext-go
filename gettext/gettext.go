@@ -24,13 +24,8 @@ var (
 //	SetLocale("")      // get locale: return DefaultLocale
 //	SetLocale("zh_CN") // set locale: return zh_CN
 //	SetLocale("")      // get locale: return zh_CN
-func SetLocale(locale string) (string, error) {
-	if locale != "" {
-		if err := defaultManager.SetLocale(locale); err != nil {
-			return "", err
-		}
-	}
-	return defaultManager.GetLocale(), nil
+func SetLocale(locale string) string {
+	return defaultManager.SetLocale(locale)
 }
 
 // BindTextdomain sets and queries program's domains.
@@ -56,8 +51,8 @@ func SetLocale(locale string) (string, error) {
 //	BindTextdomain("poedit", "local.zip", nil)     // bind "poedit" domain
 //	BindTextdomain("poedit", "local.zip", zipData) // bind "poedit" domain
 //
-func BindTextdomain(domain, path string, data []byte) (domains, paths []string, err error) {
-	return defaultManager.Bind(domain, path, data)
+func BindTextdomain(domain, path string, zipData []byte) (domains, paths []string) {
+	return defaultManager.Bind(domain, path, zipData)
 }
 
 // Textdomain sets and retrieves the current message domain.
@@ -71,13 +66,8 @@ func BindTextdomain(domain, path string, data []byte) (domains, paths []string, 
 // Examples:
 //	Textdomain("poedit") // set domain: poedit
 //	Textdomain("")       // get domain: return poedit
-func Textdomain(domain string) (string, error) {
-	if domain != "" {
-		if err := defaultManager.SetDomain(domain); err != nil {
-			return "", err
-		}
-	}
-	return defaultManager.GetDomain(), nil
+func Textdomain(domain string) string {
+	return defaultManager.SetDomain(domain)
 }
 
 // Gettext attempt to translate a text string into the user's native language,
@@ -96,14 +86,14 @@ func Gettext(msgid string) string {
 // Getdata attempt to translate a resource file into the user's native language,
 // by looking up the translation in a message catalog.
 //
-// It use the caller's function name as the msgctxt.
-//
 // Examples:
 //	func Foo() {
-//		icon := gettext.Getdata("favicon.ico")
+//		Textdomain("hello")
+//		BindTextdomain("hello", "local.zip", nilOrZipData)
+//		poems := gettext.Getdata("poems.txt")
 //	}
-func Getdata(path string) []byte {
-	return defaultManager.Getdata(path)
+func Getdata(name string) []byte {
+	return defaultManager.Getdata(name)
 }
 
 // NGettext attempt to translate a text string into the user's native language,

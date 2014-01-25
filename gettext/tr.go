@@ -10,6 +10,11 @@ import (
 	"code.google.com/p/gettext-go/gettext/po"
 )
 
+var nilTranslator = &translator{
+	MessageMap:    make(map[string]mo.Message),
+	PluralFormula: plural.Formula("??"),
+}
+
 type translator struct {
 	MessageMap    map[string]mo.Message
 	PluralFormula func(n int) int

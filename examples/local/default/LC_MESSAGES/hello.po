@@ -20,16 +20,16 @@ msgstr ""
 
 msgctxt "main.init"
 msgid "Gettext in init."
-msgstr "Init函数中的Gettext."
+msgstr ""
 
 msgctxt "main.main"
 msgid "Hello, world!"
-msgstr "你好, 世界!"
+msgstr ""
 
 msgctxt "main.func"
 msgid "Gettext in func."
-msgstr "闭包函数中的Gettext."
+msgstr ""
 
 msgctxt "code.google.com/p/gettext-go/examples/hi.SayHi"
 msgid "pkg hi: Hello, world!"
-msgstr "来自\"Hi\"包的问候: 你好, 世界!"
+msgstr ""
