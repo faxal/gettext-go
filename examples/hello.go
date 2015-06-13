@@ -28,7 +28,7 @@ func init() {
 	// ?
 
 	// set simple chinese
-	gettext.SetLocale("zh_CN")
+	gettext.SetLocale("zh")
 
 	// simple chinese
 	fmt.Println(gettext.Gettext("Gettext in init."))
@@ -70,7 +70,7 @@ func main() {
 	fmt.Println()
 
 	// translate resource
-	gettext.SetLocale("zh_CN")
+	gettext.SetLocale("zh")
 	fmt.Println("poems(simple chinese):")
 	fmt.Println(string(gettext.Getdata("poems.txt")))
 	gettext.SetLocale("zh_TW")

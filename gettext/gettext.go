@@ -160,7 +160,7 @@ func DNGettext(domain, msgid, msgidPlural string, n int) string {
 //		msg := gettext.DPGettext("poedit", "gettext-go.example", "Hello")
 //	}
 func DPGettext(domain, msgctxt, msgid string) string {
-	return DPNGettext(domain, callerName(2), msgid, "", 0)
+	return DPNGettext(domain, msgctxt, msgid, "", 0)
 }
 
 // DPNGettext like PNGettext(), but looking up the message in the specified domain.

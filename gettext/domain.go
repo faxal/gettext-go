@@ -4,9 +4,7 @@
 
 package gettext
 
-import (
-	"sync"
-)
+import "sync"
 
 type domainManager struct {
 	mutex     sync.Mutex
@@ -78,7 +76,7 @@ func (p *domainManager) PNGettext(msgctxt, msgid, msgidPlural string, n int) str
 func (p *domainManager) DPNGettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
 	p.mutex.Lock()
 	defer p.mutex.Unlock()
-	return p.gettext(p.domain, msgctxt, msgid, msgidPlural, n)
+	return p.gettext(domain, msgctxt, msgid, msgidPlural, n)
 }
 
 func (p *domainManager) gettext(domain, msgctxt, msgid, msgidPlural string, n int) string {
