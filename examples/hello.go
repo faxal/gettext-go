@@ -8,8 +8,8 @@ package main
 import (
 	"fmt"
 
-	"code.google.com/p/gettext-go/examples/hi"
-	"code.google.com/p/gettext-go/gettext"
+	"github.com/faxal/gettext-go/examples/hi"
+	"github.com/faxal/gettext-go/gettext"
 )
 
 func init() {

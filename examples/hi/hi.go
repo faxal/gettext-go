@@ -8,10 +8,10 @@ package hi
 import (
 	"fmt"
 
-	"code.google.com/p/gettext-go/gettext"
+	"github.com/faxal/gettext-go/gettext"
 )
 
 func SayHi() {
 	fmt.Println(gettext.Gettext("pkg hi: Hello, world!"))
-	fmt.Println(gettext.PGettext("code.google.com/p/gettext-go/examples/hi.SayHi", "pkg hi: Hello, world!"))
+	fmt.Println(gettext.PGettext("github.com/faxal/gettext-go/examples/hi.SayHi", "pkg hi: Hello, world!"))
 }

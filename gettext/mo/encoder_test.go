@@ -47,7 +47,7 @@ var testMoFile = &File{
 			MsgStr:     "闭包函数中的Gettext.",
 		},
 		Message{
-			MsgContext: "code.google.com/p/gettext-go/examples/hi.SayHi",
+			MsgContext: "github.com/faxal/gettext-go/examples/hi.SayHi",
 			MsgId:      "pkg hi: Hello, world!",
 			MsgStr:     "来自\"Hi\"包的问候: 你好, 世界!",
 		},

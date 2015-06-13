@@ -7,7 +7,7 @@ Package po provides support for reading and writing GNU PO file.
 
 Examples:
 	import (
-		"code.google.com/p/gettext-go/gettext/po"
+		"github.com/faxal/gettext-go/gettext/po"
 	)
 
 	func main() {

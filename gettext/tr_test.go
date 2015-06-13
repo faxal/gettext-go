@@ -7,8 +7,8 @@ package gettext
 import (
 	"testing"
 
-	"code.google.com/p/gettext-go/gettext/mo"
-	"code.google.com/p/gettext-go/gettext/po"
+	"github.com/faxal/gettext-go/gettext/mo"
+	"github.com/faxal/gettext-go/gettext/po"
 )
 
 func TestTranslator_Po(t *testing.T) {
@@ -78,7 +78,7 @@ var testTrData = []struct {
 	{"main.init", "Gettext in init.", "Init函数中的Gettext."},
 	{"main.main", "Hello, world!", "你好, 世界!"},
 	{"main.func", "Gettext in func.", "闭包函数中的Gettext."},
-	{"code.google.com/p/gettext-go/examples/hi.SayHi", "pkg hi: Hello, world!", "来自\"Hi\"包的问候: 你好, 世界!"},
+	{"github.com/faxal/gettext-go/examples/hi.SayHi", "pkg hi: Hello, world!", "来自\"Hi\"包的问候: 你好, 世界!"},
 }
 
 var testTrPoData = `
@@ -94,7 +94,7 @@ msgctxt "main.func"
 msgid "Gettext in func."
 msgstr "闭包函数中的Gettext."
 
-msgctxt "code.google.com/p/gettext-go/examples/hi.SayHi"
+msgctxt "github.com/faxal/gettext-go/examples/hi.SayHi"
 msgid "pkg hi: Hello, world!"
 msgstr "来自\"Hi\"包的问候: 你好, 世界!"
 `

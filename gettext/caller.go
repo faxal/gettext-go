@@ -21,7 +21,7 @@ var (
 // main.main
 // main.init·1 -> main.init
 // main.func·001 -> main.func
-// code.google.com/p/gettext-go/gettext.TestCallerName
+// github.com/faxal/gettext-go/gettext.TestCallerName
 // ...
 func callerName(skip int) string {
 	pc, _, _, ok := runtime.Caller(skip)
